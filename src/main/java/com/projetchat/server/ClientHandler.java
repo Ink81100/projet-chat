@@ -8,18 +8,18 @@ import java.net.Socket;
 import java.util.Set;
 
 /**
- * Classe permettant de gérer le clients
+ * Classe permettant de gérer le client
  */
-public class GestionnaireClient implements Runnable {
+public class ClientHandler implements Runnable {
     /**Le socket de connexion */
     private Socket socket;
     
     private BufferedReader input;
     private PrintWriter output;
-    private Set<GestionnaireClient> clients;
+    private Set<ClientHandler> clients;
     private String clientName;
 
-    public GestionnaireClient(Socket socket, Set<GestionnaireClient> clients) {
+    public ClientHandler(Socket socket, Set<ClientHandler> clients) {
         this.socket = socket;
         this.clients = clients;
     }
@@ -56,7 +56,7 @@ public class GestionnaireClient implements Runnable {
      * @param message le message à transmettre
      */
     private void broadcast(String message) {
-        for (GestionnaireClient client : clients) {
+        for (ClientHandler client : clients) {
             client.output.println(message);
         }
     }
