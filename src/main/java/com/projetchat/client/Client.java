@@ -14,21 +14,13 @@ public class Client {
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
             System.out.println("Connecté au serveur.");
 
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
             // Thread pour écouter les messages du serveur
-            new Thread(() -> {
-                String response;
-                try {
-                    while ((response = input.readLine()) != null) {
-                        System.out.println(response);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Déconnecté du serveur.");
-                }
-            }).start();
+            EcouteHandler ecouteHandler =new EcouteHandler(socket);
+            new Thread(ecouteHandler).start();
+
 
             // Envoi des messages depuis la console
             String message;
