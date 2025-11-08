@@ -3,7 +3,6 @@ package com.projetchat.server;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -36,7 +35,7 @@ public final class GenereClef {
         //Initialisation
         KeyPairGenerator RSAGenerator = KeyPairGenerator.getInstance("RSA");
         RSAGenerator.initialize(256);
-        
+
         return RSAGenerator.generateKeyPair();
     }
 }
