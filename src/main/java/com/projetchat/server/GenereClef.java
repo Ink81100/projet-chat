@@ -19,9 +19,10 @@ public final class GenereClef {
      * @throws NoSuchAlgorithmException
      */
     public static final SecretKey AESKeyGenerator() throws NoSuchAlgorithmException {
+        //Initialisation
         KeyGenerator AESGenerator = KeyGenerator.getInstance("AES");
-        SecureRandom secureRandom = new SecureRandom();
-        AESGenerator.init(secureRandom.nextInt());
+        AESGenerator.init(256);
+
         return AESGenerator.generateKey();
     }
 
@@ -32,9 +33,10 @@ public final class GenereClef {
      * @throws NoSuchAlgorithmException
      */
     public static final KeyPair RSAKeyGenerator() throws NoSuchAlgorithmException {
+        //Initialisation
         KeyPairGenerator RSAGenerator = KeyPairGenerator.getInstance("RSA");
-        SecureRandom secureRandom = new SecureRandom();
-        RSAGenerator.initialize(secureRandom.nextInt());
+        RSAGenerator.initialize(256);
+        
         return RSAGenerator.generateKeyPair();
     }
 }
