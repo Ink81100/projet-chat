@@ -7,13 +7,18 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Set;
 
+import javax.crypto.SecretKey;
+
 /**
  * Classe permettant de gérer le client
  */
 public class ClientHandler implements Runnable {
-    /**Le socket de connexion */
+    /** Le socket de connexion */
     private Socket socket;
-    
+
+    /** La clef de chiffrement AES */
+    private static SecretKey key;
+
     private BufferedReader input;
     private PrintWriter output;
     private Set<ClientHandler> clients;
@@ -22,6 +27,10 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket, Set<ClientHandler> clients) {
         this.socket = socket;
         this.clients = clients;
+    }
+
+    public static void setKey(SecretKey secretKey) {
+        key = secretKey;
     }
 
     @Override
@@ -53,6 +62,7 @@ public class ClientHandler implements Runnable {
 
     /**
      * Transmet un message à l'ensemble des clients
+     * 
      * @param message le message à transmettre
      */
     private void broadcast(String message) {
