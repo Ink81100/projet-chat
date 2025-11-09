@@ -7,20 +7,37 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
-    private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 10001;
+    /** L'adresse du serveur */
+    private final String adresse;
+    /** Le port du serveur */
+    private final int port;
+    /** Le nom du client */
+    private final String nom;
 
-    public static void main(String[] args) {
-        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
+    /**
+     * Le constructeur du client
+     * 
+     * @param adresse L'adresse du serveur
+     * @param port    Le port du serveur
+     * @param nom     Le nom du client
+     */
+    public Client(String adresse, int port, String nom) {
+        this.adresse = adresse;
+        this.port = port;
+        this.nom = nom;
+    }
+
+    /** Démarre le client */
+    public void start() {
+        try (Socket socket = new Socket(adresse, port)) {
             System.out.println("Connecté au serveur.");
 
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 
             // Thread pour écouter les messages du serveur
-            EcouteHandler ecouteHandler =new EcouteHandler(socket);
+            EcouteHandler ecouteHandler = new EcouteHandler(socket);
             new Thread(ecouteHandler).start();
-
 
             // Envoi des messages depuis la console
             String message;
@@ -31,5 +48,15 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        //Initialisation
+        int port = 10001;
+        String adresse = "localhost";
+        String nom = "Adrien";
+
+        Client client = new Client(adresse, port, nom);
+        client.start();
     }
 }
