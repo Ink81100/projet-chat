@@ -7,13 +7,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.crypto.SecretKey;
-
 /*Classe du serveur de chat */
 public class Serveur {
     private static final int PORT = 10001;
     private static final Set<ClientHandler> clients = new HashSet<>();
-    private final SecretKey AESKey;
 
     /**
      * Instencie un nouveau serveur avec ses clefs
@@ -21,9 +18,6 @@ public class Serveur {
      * @throws NoSuchAlgorithmException
      */
     public Serveur() throws NoSuchAlgorithmException {
-        // Génération de la clef AES
-        AESKey = GenereClef.AESKeyGenerator();
-        ClientHandler.setKey(AESKey);
     }
 
     /**

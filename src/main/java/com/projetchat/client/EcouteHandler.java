@@ -37,8 +37,6 @@ public class EcouteHandler implements Runnable {
      */
     @Override
     public void run() {
-        
-
         try {
             //Boucle d'éxécution
             String reponse;
@@ -60,7 +58,7 @@ public class EcouteHandler implements Runnable {
         try {
             // Decodage du message
             byte[] decode = Base64.getDecoder().decode(message64);
-            System.out.println(new String(decode));
+            System.out.println("📥️ Message reçus: " + new String(decode));
             String message = CryptoHandler.decrypte(decode, key);
             return message;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException

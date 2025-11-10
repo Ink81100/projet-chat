@@ -6,14 +6,22 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Set;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyAgreement;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.projetchat.CryptoHandler;
 
@@ -25,42 +33,37 @@ public class ClientHandler implements Runnable {
     private Socket socket;
 
     /** La clef de chiffrement AES */
-    private static SecretKey key;
+    private SecretKey key;
 
     private BufferedReader input;
     private PrintWriter output;
+    /** L'ensemble des clients existant */
     private Set<ClientHandler> clients;
+    /** Le nom du client */
     private String clientName;
 
-    public ClientHandler(Socket socket, Set<ClientHandler> clients) {
+    public ClientHandler(Socket socket, Set<ClientHandler> clients) throws IOException {
         this.socket = socket;
         this.clients = clients;
-    }
-
-    public static void setKey(SecretKey secretKey) {
-        key = secretKey;
+        input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        output = new PrintWriter(this.socket.getOutputStream(), true);
+        // Echange de clef
+        diffie();
     }
 
     @Override
     public void run() {
         try {
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            output = new PrintWriter(socket.getOutputStream(), true);
-
-            //Transmission de la clef AES
-            String key64 = Base64.getEncoder().encodeToString(key.getEncoded());
-            output.println(key64);
-            System.out.println("🔑 Transmission de la clef AES : " + key64 );
-
-            //Lecture du nom
+            // Lecture du nom
             clientName = recois(input.readLine());
             broadcast("📢 " + clientName + " a rejoint le chat !");
+            System.out.println("📢 " + clientName + " a rejoint le chat !");
 
-            //Boucle de Lecture de message
+            // Boucle de Lecture de message
             String message;
             while ((message = input.readLine()) != null) {
-
                 broadcast("💬 " + clientName + " : " + recois(message));
+                System.out.println("💬 " + clientName + " : " + recois(message));
             }
         } catch (IOException e) {
             System.out.println("Client déconnecté : " + clientName);
@@ -72,6 +75,47 @@ public class ClientHandler implements Runnable {
             }
             clients.remove(this);
             broadcast("❌ " + clientName + " a quitté le chat.");
+            System.out.println("❌ " + clientName + " a quitté le chat.");
+        }
+    }
+
+    /**
+     * Echange de clef via la méthode de Diffie-Hellman (Côté serveur)
+     */
+    private void diffie() {
+        try {
+            // Etape 1: Génération de la paire de clefs du serveur
+            KeyPairGenerator keyPairGenerator = java.security.KeyPairGenerator.getInstance("DiffieHellman");
+            keyPairGenerator.initialize(4096);
+            KeyPair keyPairServeur = keyPairGenerator.genKeyPair();
+
+            // Etape 2: Echange des clefs
+            output.println(Base64.getEncoder().encodeToString(keyPairServeur.getPublic().getEncoded()));
+            byte[] encClient = Base64.getDecoder().decode(input.readLine());
+
+            // Etape 3: Création de l'objet clef publique de client
+            PublicKey publicKeyClient = KeyFactory.getInstance("DiffieHellman")
+                    .generatePublic(new X509EncodedKeySpec(encClient));
+
+            // Etape 4: Calcul du secret commun
+            KeyAgreement keyAgreementServeur = KeyAgreement.getInstance("DiffieHellman");
+            keyAgreementServeur.init(keyPairServeur.getPrivate());
+            keyAgreementServeur.doPhase(publicKeyClient, true);
+            byte[] secretcommun = keyAgreementServeur.generateSecret();
+
+            // Etape 5: Calculs de la clef AES
+            key = new SecretKeySpec(secretcommun, 0, 32, "AES"); // AES-256
+            System.out.println("🔑 Clef AES: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Erreur lors de la génération des clefs: " + e);
+        } catch (IOException e) {
+            System.out.println("Erreur lors de la lecture des données: " + e);
+        } catch (InvalidKeySpecException e) {
+            System.out.println("Erreur: " + e);
+        } catch (InvalidKeyException e) {
+            System.out.println("Erreur au niveau de la clef: " + e);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 
@@ -101,13 +145,13 @@ public class ClientHandler implements Runnable {
             // Decodage du message
             byte[] decode = Base64.getDecoder().decode(message64);
             String message = CryptoHandler.decrypte(decode, key);
+            System.out.println("🔓️ Message décrypté: " + message);
             return message;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
             System.out.println("Erreur lors du décryptage : " + e);
             return "ERREUR";
         }
-
     }
 
     /**
