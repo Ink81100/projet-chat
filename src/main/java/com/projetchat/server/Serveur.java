@@ -23,7 +23,6 @@ public class Serveur {
     public Serveur() throws NoSuchAlgorithmException {
         // Génération de la clef AES
         AESKey = GenereClef.AESKeyGenerator();
-
         ClientHandler.setKey(AESKey);
     }
 
