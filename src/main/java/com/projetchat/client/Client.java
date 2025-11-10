@@ -39,6 +39,9 @@ public class Client {
             EcouteHandler ecouteHandler = new EcouteHandler(socket);
             new Thread(ecouteHandler).start();
 
+            //Envois du nom
+            output.println(nom);
+
             // Envoi des messages depuis la console
             String message;
             while ((message = console.readLine()) != null) {

@@ -39,7 +39,6 @@ public class ClientHandler implements Runnable {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
 
-            output.println("Entrez votre nom : ");
             clientName = input.readLine();
             broadcast("📢 " + clientName + " a rejoint le chat !");
 
