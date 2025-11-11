@@ -11,8 +11,11 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Set;
 
@@ -35,8 +38,8 @@ public class ClientHandler implements Runnable {
     /** La clef de chiffrement AES */
     private SecretKey key;
 
-    private BufferedReader input;
-    private PrintWriter output;
+    private final BufferedReader input;
+    private final PrintWriter output;
     /** L'ensemble des clients existant */
     private Set<ClientHandler> clients;
     /** Le nom du client */
@@ -84,23 +87,70 @@ public class ClientHandler implements Runnable {
      */
     private void diffie() {
         try {
-            // Etape 1: Génération de la paire de clefs du serveur
+            // Etape 1: Génération des paires de clefs du serveur
+
+            // Diffie-Hellman
             KeyPairGenerator keyPairGenerator = java.security.KeyPairGenerator.getInstance("DiffieHellman");
             keyPairGenerator.initialize(4096);
             KeyPair keyPairServeur = keyPairGenerator.genKeyPair();
 
-            // Etape 2: Echange des clefs
-            output.println(Base64.getEncoder().encodeToString(keyPairServeur.getPublic().getEncoded()));
-            byte[] encClient = Base64.getDecoder().decode(input.readLine());
+            // Signature RSA
+            // Génération de la paire
+            KeyPairGenerator keyPairGeneratorSign = java.security.KeyPairGenerator.getInstance("RSA");
+            keyPairGeneratorSign.initialize(2048);
+            KeyPair keyPairServeurSign = keyPairGeneratorSign.genKeyPair();
+            // Objet Signature
+            Signature signer = Signature.getInstance("SHA256withRSA");
+            signer.initSign(keyPairServeurSign.getPrivate());
 
-            // Etape 3: Création de l'objet clef publique de client
-            PublicKey publicKeyClient = KeyFactory.getInstance("DiffieHellman")
-                    .generatePublic(new X509EncodedKeySpec(encClient));
+            // Etape 2: Echange des clefs
+            // Serveur
+            signer.update(keyPairServeur.getPublic().getEncoded());
+            String signatureServeur64 = Base64.getEncoder().encodeToString(signer.sign());
+            String pubKeyServ64 = Base64.getEncoder().encodeToString(keyPairServeur.getPublic().getEncoded());
+            String pubKeyServRSA64 = Base64.getEncoder().encodeToString(keyPairServeurSign.getPublic().getEncoded());
+
+            System.out.println("🔑 Clef publique DH serveur : " + Arrays.toString(keyPairServeur.getPublic().getEncoded()));
+            System.out.println("📝 Signature serveur : "+ Arrays.toString(signer.sign()));
+            System.out.println("🔑 clef publique RSA Serveur : " + Arrays.toString(keyPairServeurSign.getPublic().getEncoded()));
+
+            System.out.println(Arrays.equals(signer.sign(), signer.sign()));
+
+            // Envois
+            System.out.println("📨 Transmission des données vers le client");
+            output.println(pubKeyServ64);// Message
+            output.println(signatureServeur64);// Signature
+            output.println(pubKeyServRSA64);// Clef publique RSA
+            output.flush();
+
+            // Client
+            // Reception
+            System.out.println("📥️ Reception des données du client");
+            byte[] bytePubKeyClient = Base64.getDecoder().decode(input.readLine());
+            byte[] byteSignatureClient = Base64.getDecoder().decode(input.readLine());
+            byte[] bytesPubKeyClientRSA = Base64.getDecoder().decode(input.readLine());
+
+            // Etape 3: Vérification de la signature du client
+            PublicKey pubKeyClientRSA = KeyFactory.getInstance("RSA")
+                    .generatePublic(new X509EncodedKeySpec(bytesPubKeyClientRSA));
+            Signature verifier = Signature.getInstance("SHA256withRSA");
+            verifier.initVerify(pubKeyClientRSA);
+            verifier.update(bytePubKeyClient);
+
+            boolean verified = verifier.verify(byteSignatureClient);
+            if (!verified) {
+                throw new SignatureException("❌ Signature du client invalide !");
+            } else {
+                System.out.println("✅ Signature du client vérifiée !");
+            }
 
             // Etape 4: Calcul du secret commun
+            PublicKey pubKeyClient = KeyFactory.getInstance("DiffieHellman")
+                    .generatePublic(new X509EncodedKeySpec(bytePubKeyClient));
+
             KeyAgreement keyAgreementServeur = KeyAgreement.getInstance("DiffieHellman");
             keyAgreementServeur.init(keyPairServeur.getPrivate());
-            keyAgreementServeur.doPhase(publicKeyClient, true);
+            keyAgreementServeur.doPhase(pubKeyClient, true);
             byte[] secretcommun = keyAgreementServeur.generateSecret();
 
             // Etape 5: Calculs de la clef AES
@@ -112,10 +162,14 @@ public class ClientHandler implements Runnable {
             System.out.println("Erreur lors de la lecture des données: " + e);
         } catch (InvalidKeySpecException e) {
             System.out.println("Erreur: " + e);
+            e.printStackTrace();
         } catch (InvalidKeyException e) {
             System.out.println("Erreur au niveau de la clef: " + e);
+            e.printStackTrace();
         } catch (IllegalStateException e) {
             e.printStackTrace();
+        } catch (SignatureException e) {
+            System.out.println("Erreur lors de la signature : " + e);
         }
     }
 

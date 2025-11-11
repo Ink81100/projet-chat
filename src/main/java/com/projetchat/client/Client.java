@@ -11,8 +11,11 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
 
@@ -85,39 +88,83 @@ public class Client {
      */
     private void diffie() {
         try {
-            // Etape 1: Génération de la paire de clefs du client
-            KeyPairGenerator keyPairGenerator = java.security.KeyPairGenerator.getInstance("DiffieHellman");
+            // Étape 1 : Génération des paires de clefs du client
+
+            // Diffie-Hellman
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DiffieHellman");
             keyPairGenerator.initialize(4096);
-            KeyPair keyPairClient = keyPairGenerator.genKeyPair();
+            KeyPair keyPairClient = keyPairGenerator.generateKeyPair();
 
-            // Etape 2: Echange des clefs
-            byte[] encServeur = Base64.getDecoder().decode(input.readLine());
-            output.println(Base64.getEncoder().encodeToString(keyPairClient.getPublic().getEncoded()));
+            // Signature RSA
+            KeyPairGenerator keyPairGeneratorSign = KeyPairGenerator.getInstance("RSA");
+            keyPairGeneratorSign.initialize(2048); // 2048 pour de vraies signatures
+            KeyPair keyPairClientSign = keyPairGeneratorSign.generateKeyPair();
 
-            // Etape 3: Création de l'objet clef publique de serveur
+            Signature signer = Signature.getInstance("SHA256withRSA");
+            signer.initSign(keyPairClientSign.getPrivate());
+
+            // Étape 2 : Réception des données du serveur
+            System.out.println("📥️ Reception des données du serveur");
+            byte[] bytesPubKeyServeur = Base64.getDecoder().decode(input.readLine());
+            byte[] bytesSignatureServeur = Base64.getDecoder().decode(input.readLine());
+            byte[] bytesPubKeyServeurRSA = Base64.getDecoder().decode(input.readLine());
+
+            System.out.println("🔑 Clef publique DH serveur : " + Arrays.toString(bytesPubKeyServeur));
+            System.out.println("📝 Signature serveur : " + Arrays.toString(bytesSignatureServeur));
+            System.out.println("🔑 clef publique RSA Serveur : " + Arrays.toString(bytesPubKeyServeurRSA));
+
+            // Étape 3 : Vérification de la signature du serveur
+            PublicKey pubKeyServeurRSA = KeyFactory.getInstance("RSA")
+                    .generatePublic(new X509EncodedKeySpec(bytesPubKeyServeurRSA));
+
+            boolean verified = CryptoHandler.verifSign(bytesPubKeyServeur, bytesSignatureServeur, pubKeyServeurRSA);
+
+            if (!verified) {
+                throw new SignatureException("❌ Signature du serveur invalide !");
+            } else {
+                System.out.println("✅ Signature du serveur vérifiée !");
+            }
+
+            // Étape 4 : Envoi des clefs du client
+            byte[] pubKeyClientBytes = keyPairClient.getPublic().getEncoded();
+            signer.update(pubKeyClientBytes);
+            byte[] signatureClient = signer.sign();
+
+            // Encode en Base64 pour envoi texte
+            String pubKeyClient64 = Base64.getEncoder().encodeToString(pubKeyClientBytes);
+            String signatureClient64 = Base64.getEncoder().encodeToString(signatureClient);
+            String pubKeyClientRSA64 = Base64.getEncoder().encodeToString(keyPairClientSign.getPublic().getEncoded());
+
+            // Envois
+            System.out.println("📨 Transmission des données vers le client");
+            output.println(pubKeyClient64);
+            output.println(signatureClient64);
+            output.println(pubKeyClientRSA64);
+            output.flush();
+
+            // Étape 5 : Calcul du secret commun
             PublicKey publicKeyServeur = KeyFactory.getInstance("DiffieHellman")
-                    .generatePublic(new X509EncodedKeySpec(encServeur));
+                    .generatePublic(new X509EncodedKeySpec(bytesPubKeyServeur));
 
-            // Etape 4: Calcul du secret commun
             KeyAgreement keyAgreementClient = KeyAgreement.getInstance("DiffieHellman");
             keyAgreementClient.init(keyPairClient.getPrivate());
             keyAgreementClient.doPhase(publicKeyServeur, true);
-            byte[] secretcommun = keyAgreementClient.generateSecret();
+            byte[] secretCommun = keyAgreementClient.generateSecret();
 
-            // Etape 5: Calculs de la clef AES
-            key = new SecretKeySpec(secretcommun, 0, 32, "AES"); // AES-256
-            System.out.println("🔑 Clef AES: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+            // Étape 6 : Dérivation de la clé AES
+            key = new SecretKeySpec(secretCommun, 0, 32, "AES"); // AES-256
+            System.out.println("🔑 Clé AES : " + Base64.getEncoder().encodeToString(key.getEncoded()));
+
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("Erreur lors de la génération des clefs: " + e);
-            e.printStackTrace();
+            System.out.println("Erreur algorithme: " + e);
         } catch (IOException e) {
-            System.out.println("Erreur lors de la lecture des données: " + e);
+            System.out.println("Erreur I/O: " + e);
         } catch (InvalidKeySpecException e) {
-            System.out.println("Erreur: " + e);
+            System.out.println("Erreur KeySpec: " + e);
         } catch (InvalidKeyException e) {
-            System.out.println("Erreur au niveau de la clef: " + e);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
+            System.out.println("Erreur de clé: " + e);
+        } catch (SignatureException e) {
+            System.out.println("Erreur de signature: " + e);
         }
     }
 
@@ -138,7 +185,6 @@ public class Client {
         int port = 10001;
         String adresse = "localhost";
         String nom = scanner.next();
-
 
         Client client = new Client(adresse, port, nom);
         client.start();
