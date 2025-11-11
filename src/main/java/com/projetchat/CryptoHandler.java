@@ -2,6 +2,9 @@ package com.projetchat;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -10,7 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 /**
- * Clase permettant de gérer le cryptage et décryptage de texte
+ * Clase permettant de gérer le cryptage/décryptage/signature de texte
  */
 public final class CryptoHandler {
     /**
@@ -58,5 +61,22 @@ public final class CryptoHandler {
         byte[] message = cipher.doFinal(bytes);
 
         return new String(message);
+    }
+
+    /**
+     * Vérifie la signature de données
+     * @param data les données
+     * @param signature la signature des données
+     * @param publicKey la clef publique utiliser (Une clef RSA)
+     * @return {@code true} si la signature est bonne, sinon {@code false}
+     * @throws InvalidKeyException
+     * @throws SignatureException
+     * @throws NoSuchAlgorithmException
+     */
+    public static final boolean verifSign(byte[] data, byte[] signature, PublicKey publicKey) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
+        Signature verifier = Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(publicKey);
+        verifier.update(data);
+        return verifier.verify(signature);
     }
 }
