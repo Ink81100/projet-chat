@@ -37,6 +37,9 @@ public class Client {
     private final String nom;
     /** La clef AES */
     private SecretKey key;
+    /** Le socket de connexion */
+    private Socket socket;
+
     private PrintWriter output;
     private BufferedReader console, input;
 
@@ -55,7 +58,8 @@ public class Client {
 
     /** Démarre le client */
     public void start() {
-        try (Socket socket = new Socket(adresse, port)) {
+        try {
+            socket = new Socket(adresse, port);
             System.out.println("Connecté au serveur.");
 
             output = new PrintWriter(socket.getOutputStream(), true);
@@ -73,13 +77,29 @@ public class Client {
             envois(nom, key, output);
 
             // Envoi des messages depuis la console
-            String message;
-            while ((message = console.readLine()) != null) {
+            boolean run = true;
+            while (run) {
+                String message = console.readLine();
                 envois(message, key, output);
+                
+                if (message.equals("bye")) {
+                    run = false;
+                }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            close();
+        }
+    }
+
+    private void close() {
+        System.out.println("Fermeture de la communication avec le server...");
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Fermuture de communnication avec le serveur échouer : " + e);
         }
     }
 

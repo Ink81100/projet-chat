@@ -63,23 +63,37 @@ public class ClientHandler implements Runnable {
             System.out.println("📢 " + clientName + " a rejoint le chat !");
 
             // Boucle de Lecture de message
-            String message;
-            while ((message = input.readLine()) != null) {
-                broadcast("💬 " + clientName + " : " + recois(message));
-                System.out.println("💬 " + clientName + " : " + recois(message));
+            boolean run = true;
+            while (run) {
+                //Décryptage
+                String message = recois(input.readLine());
+
+                broadcast("💬 " + clientName + " : " + message);
+                System.out.println("💬 " + clientName + " : " + message);
+
+                // Vérification du message
+                if (message.equals("bye")) {
+                    System.out.println("Fermeture");
+                    run = false;
+                }
             }
         } catch (IOException e) {
             System.out.println("Client déconnecté : " + clientName);
         } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            clients.remove(this);
-            broadcast("❌ " + clientName + " a quitté le chat.");
-            System.out.println("❌ " + clientName + " a quitté le chat.");
+            close();
         }
+    }
+
+    /** Ferme la connection avec le client */
+    private void close() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        clients.remove(this);
+        broadcast("❌ " + clientName + " a quitté le chat.");
+        System.out.println("❌ " + clientName + " a quitté le chat.");
     }
 
     /**
@@ -110,9 +124,11 @@ public class ClientHandler implements Runnable {
             String pubKeyServ64 = Base64.getEncoder().encodeToString(keyPairServeur.getPublic().getEncoded());
             String pubKeyServRSA64 = Base64.getEncoder().encodeToString(keyPairServeurSign.getPublic().getEncoded());
 
-            System.out.println("🔑 Clef publique DH serveur : " + Arrays.toString(keyPairServeur.getPublic().getEncoded()));
-            System.out.println("📝 Signature serveur : "+ Arrays.toString(signer.sign()));
-            System.out.println("🔑 clef publique RSA Serveur : " + Arrays.toString(keyPairServeurSign.getPublic().getEncoded()));
+            System.out.println(
+                    "🔑 Clef publique DH serveur : " + Arrays.toString(keyPairServeur.getPublic().getEncoded()));
+            System.out.println("📝 Signature serveur : " + Arrays.toString(signer.sign()));
+            System.out.println(
+                    "🔑 clef publique RSA Serveur : " + Arrays.toString(keyPairServeurSign.getPublic().getEncoded()));
 
             System.out.println(Arrays.equals(signer.sign(), signer.sign()));
 

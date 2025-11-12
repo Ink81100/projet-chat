@@ -8,24 +8,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 /*Classe du serveur de chat */
-public class Serveur {
-    private static final int PORT = 10001;
-    private static final Set<ClientHandler> clients = new HashSet<>();
+public class Serveur implements Runnable{
+    /** Le port du serveur */
+    private final int port;
+    /** L'ensemble des clients */
+    private final Set<ClientHandler> clients = new HashSet<>();
 
     /**
-     * Instencie un nouveau serveur avec ses clefs
+     * Instencie un nouveau serveur
      * 
      * @throws NoSuchAlgorithmException
      */
-    public Serveur() throws NoSuchAlgorithmException {
+    public Serveur(int port) {
+        this.port = port;
     }
 
     /**
      * Méthode qui démarre le serveur
      */
-    public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Serveur démarré sur le port " + PORT);
+    private void start() throws IOException{
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Serveur démarré sur le port " + port);
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -36,12 +39,15 @@ public class Serveur {
                 clients.add(client);
                 new Thread(client).start();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        new Serveur().start();
+    @Override
+    public void run() {
+        try {
+            start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
