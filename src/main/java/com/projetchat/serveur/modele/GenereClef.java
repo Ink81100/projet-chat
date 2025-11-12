@@ -1,4 +1,4 @@
-package com.projetchat.server.modele;
+package com.projetchat.serveur.modele;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

@@ -1,4 +1,4 @@
-package com.projetchat.server.controleur;
+package com.projetchat.serveur.controleur;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,5 +25,4 @@ public class ContrDemarrage extends Control{
     private void startServer() {
         //TODO: Faire la zone démarrage du serveur
     }
-
 }

@@ -1,6 +1,6 @@
-package com.projetchat.server;
+package com.projetchat.serveur;
 
-import com.projetchat.server.vue.ServeurViewer;
+import com.projetchat.serveur.vue.ServeurViewer;
 
 public class Main {
     public static void main(String[] args) {

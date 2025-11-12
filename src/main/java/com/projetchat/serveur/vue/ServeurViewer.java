@@ -1,4 +1,4 @@
-package com.projetchat.server.vue;
+package com.projetchat.serveur.vue;
 
 
 import javafx.application.Application;
@@ -15,7 +15,7 @@ public class ServeurViewer extends Application{
         Scene scene = new Scene(loader.load());
 
         // Paramètrage de la fenêtre
-        stage.setTitle("ProjLoget chat - Serveur");
+        stage.setTitle("Projet chat - Serveur");
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
