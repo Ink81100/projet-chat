@@ -18,7 +18,7 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.api.Test;
 
 import com.projetchat.CryptoHandler;
-import com.projetchat.server.modele.GenereClef;
+import com.projetchat.serveur.modele.GenereClef;
 
 public class TestCryptage {
     /**
