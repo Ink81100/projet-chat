@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -12,13 +13,13 @@ import java.security.SignatureException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import org.junit.jupiter.api.Test;
 
 import com.projetchat.CryptoHandler;
-import com.projetchat.serveur.modele.GenereClef;
 
 public class TestCryptage {
     /**
@@ -35,7 +36,9 @@ public class TestCryptage {
             IllegalBlockSizeException, BadPaddingException {
         // Initialisation
         String message = "Messege de test";
-        SecretKey key = GenereClef.AESKeyGenerator();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(256);
+        SecretKey key = keyGenerator.generateKey();
 
         // Cryptage
         byte[] messageCrypte = CryptoHandler.crypte(message, key);
@@ -58,7 +61,9 @@ public class TestCryptage {
             IllegalBlockSizeException, BadPaddingException {
         // Initialisation
         String message = "Messege de test";
-        SecretKey key = GenereClef.AESKeyGenerator();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(256);
+        SecretKey key = keyGenerator.generateKey();
 
         // Cryptage
         byte[] messageCrypte = CryptoHandler.crypte(message, key);
