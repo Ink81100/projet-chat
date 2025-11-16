@@ -17,6 +17,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.crypto.BadPaddingException;
@@ -41,17 +42,17 @@ public class ClientHandler implements Runnable {
     private final BufferedReader input;
     private final PrintWriter output;
     /** L'ensemble des clients existant */
-    private Set<ClientHandler> clients;
+    private static Set<ClientHandler> clients = new HashSet<>();
     /** Le nom du client */
     private String clientName;
 
-    public ClientHandler(Socket socket, Set<ClientHandler> clients) throws IOException {
+    public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
-        this.clients = clients;
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         output = new PrintWriter(this.socket.getOutputStream(), true);
         // Echange de clef
         diffie();
+        clients.add(this);
     }
 
     @Override
@@ -229,7 +230,7 @@ public class ClientHandler implements Runnable {
      * 
      * @param message le message à envoyer
      */
-    private void broadcast(String message) {
+    protected static void broadcast(String message) {
         for (ClientHandler client : clients) {
             client.envois(message);
         }

@@ -4,15 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Set;
 
 /*Classe du serveur de chat */
 public class Serveur implements Runnable{
     /** Le port du serveur */
     private final int port;
     /** L'ensemble des clients */
-    private final Set<ClientHandler> clients = new HashSet<>();
 
     /**
      * Instencie un nouveau serveur
@@ -35,11 +32,15 @@ public class Serveur implements Runnable{
                 System.out.println("Nouveau client connecté : " + socket.getInetAddress());
 
                 //Thread du nouveau client
-                ClientHandler client = new ClientHandler(socket, clients);
-                clients.add(client);
+                ClientHandler client = new ClientHandler(socket);
                 new Thread(client).start();
             }
         }
+    }
+
+    /** Envois un message à tous les utilisateurs */
+    public void broadcast(String message) {
+        ClientHandler.broadcast(message);
     }
 
     @Override
