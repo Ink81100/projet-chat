@@ -8,26 +8,21 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projetchat.serveur.controleur.ContrDemarrage">
-   <top>
-      <VBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label prefHeight="18.0" prefWidth="125.0" text="Projet chat - Serveur" textAlignment="CENTER" />
-            <HBox prefHeight="46.0" prefWidth="600.0">
-               <children>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
-                     <children>
-                        <Label text="Port:" />
-                        <Spinner fx:id="spinnerPort" editable="true" />
-                     </children>
-                  </VBox>
-                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#startServer" text="Démarrer" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-   </top>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.projetchat.serveur.controleur.ContrServeur">
    <center>
       <TextArea fx:id="textAreaConsole" editable="false" prefHeight="328.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
    </center>
+   <top>
+      <HBox prefHeight="46.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label text="Port:" />
+                  <Spinner fx:id="spinnerPort" editable="true" />
+               </children>
+            </VBox>
+            <Button fx:id="startButton" mnemonicParsing="false" onAction="#startServer" text="Démarrer" />
+         </children>
+      </HBox>
+   </top>
 </BorderPane>

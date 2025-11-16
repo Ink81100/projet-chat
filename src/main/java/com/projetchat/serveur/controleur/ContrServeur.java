@@ -13,11 +13,10 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
-
 /**
  * Le contrôleur du l'interface du serveur
  */
-public class ContrDemarrage extends Control implements Initializable {
+public class ContrServeur extends Control implements Initializable {
     /** La zone d'entrée du port*/
     @FXML
     private Spinner<Integer> spinnerPort;
@@ -34,6 +33,7 @@ public class ContrDemarrage extends Control implements Initializable {
      @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         spinnerPort.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 1));
+
         // Redirection de l'affichage de la console
         ConsoleOutputStream console = new ConsoleOutputStream(textAreaConsole);
         PrintStream ps = new PrintStream(console);
