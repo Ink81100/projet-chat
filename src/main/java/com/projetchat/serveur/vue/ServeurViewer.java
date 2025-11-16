@@ -18,7 +18,7 @@ public class ServeurViewer extends Application{
         // Paramètrage de la fenêtre
         stage.setTitle("Projet chat - Serveur");
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.show();
     }
 }
