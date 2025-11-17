@@ -51,7 +51,7 @@ public class ContrServeur extends Control implements Initializable {
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         // Initialisation de
-        spinnerPort.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 1));
+        spinnerPort.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 10001));
 
         // Affichage des logs dans l'ui
         TextAreaAppender.setTextArea(textAreaConsole);
