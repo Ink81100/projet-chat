@@ -5,8 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /* Classe du serveur de chat */
 public class Serveur implements Runnable {
+    /** Le gestionnaire de logs */
+    private static final Logger logger = LogManager.getLogger(Serveur.class);
     /** Le port du serveur */
     private final int port;
 
@@ -24,15 +29,17 @@ public class Serveur implements Runnable {
      */
     private void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Serveur démarré sur le port " + port);
+            logger.info("Serveur démarré sur le port {}", port);
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Nouveau client connecté : " + socket.getInetAddress());
+                logger.info("Nouveau client connecté : {}", socket.getInetAddress());
 
                 // Thread du nouveau client
                 ClientHandler client = new ClientHandler(socket);
-                new Thread(client).start();
+                Thread thread = new Thread(client, "Client " + socket.getInetAddress());
+                thread.setDaemon(true);
+                thread.start();
             }
         }
     }

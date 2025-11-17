@@ -27,12 +27,18 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.projetchat.CryptoHandler;
 
 /**
  * Classe permettant de gérer le client
  */
 public class ClientHandler implements Runnable {
+    /** Le gestionnaire de logs */
+    private static final Logger logger = LogManager.getLogger(ClientHandler.class);
+
     /** Le socket de connexion */
     private Socket socket;
 
@@ -41,6 +47,7 @@ public class ClientHandler implements Runnable {
 
     private final BufferedReader input;
     private final PrintWriter output;
+
     /** L'ensemble des clients existant */
     private static Set<ClientHandler> clients = new HashSet<>();
     /** Le nom du client */
@@ -50,18 +57,19 @@ public class ClientHandler implements Runnable {
         this.socket = socket;
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         output = new PrintWriter(this.socket.getOutputStream(), true);
-        // Echange de clef
-        diffie();
         clients.add(this);
+
     }
 
     @Override
     public void run() {
+        // Echange de clef
+        diffie();
         try {
             // Lecture du nom
             clientName = recois(input.readLine());
             broadcast("📢 " + clientName + " a rejoint le chat !");
-            System.out.println("📢 " + clientName + " a rejoint le chat !");
+            logger.info("{} a rejoint le chat", clientName);
 
             // Boucle de Lecture de message
             boolean run = true;
@@ -70,16 +78,15 @@ public class ClientHandler implements Runnable {
                 String message = recois(input.readLine());
 
                 broadcast("💬 " + clientName + " : " + message);
-                System.out.println("💬 " + clientName + " : " + message);
+                logger.info("<{}> {}", clientName, message);
 
                 // Vérification du message
                 if (message.equals("bye")) {
-                    System.out.println("Fermeture");
                     run = false;
                 }
             }
         } catch (IOException e) {
-            System.out.println("Client déconnecté : " + clientName);
+            logger.error("Une errreu est survenu : {}", e);
         } finally {
             close();
         }
@@ -94,13 +101,14 @@ public class ClientHandler implements Runnable {
         }
         clients.remove(this);
         broadcast("❌ " + clientName + " a quitté le chat.");
-        System.out.println("❌ " + clientName + " a quitté le chat.");
+        logger.info("{} à quitter le chat", clientName);
     }
 
     /**
      * Echange de clef via la méthode de Diffie-Hellman (Côté serveur)
      */
     private void diffie() {
+        logger.info("Début d'échange des clefs");
         try {
             // Etape 1: Génération des paires de clefs du serveur
 
@@ -125,13 +133,11 @@ public class ClientHandler implements Runnable {
             String pubKeyServ64 = Base64.getEncoder().encodeToString(keyPairServeur.getPublic().getEncoded());
             String pubKeyServRSA64 = Base64.getEncoder().encodeToString(keyPairServeurSign.getPublic().getEncoded());
 
-            System.out.println(
-                    "🔑 Clef publique DH serveur : " + Arrays.toString(keyPairServeur.getPublic().getEncoded()));
-            System.out.println("📝 Signature serveur : " + Arrays.toString(signer.sign()));
-            System.out.println(
-                    "🔑 clef publique RSA Serveur : " + Arrays.toString(keyPairServeurSign.getPublic().getEncoded()));
-
-            System.out.println(Arrays.equals(signer.sign(), signer.sign()));
+            logger.info(
+                    "Clef publique DH serveur : {}", Arrays.toString(keyPairServeur.getPublic().getEncoded()));
+            logger.info("Signature serveur : {}", Arrays.toString(signer.sign()));
+            logger.info(
+                    "clef publique RSA Serveur : {}", Arrays.toString(keyPairServeurSign.getPublic().getEncoded()));
 
             // Envois
             System.out.println("📨 Transmission des données vers le client");
@@ -156,9 +162,9 @@ public class ClientHandler implements Runnable {
 
             boolean verified = verifier.verify(byteSignatureClient);
             if (!verified) {
-                throw new SignatureException("❌ Signature du client invalide !");
+                throw new SignatureException("Signature du client invalide");
             } else {
-                System.out.println("✅ Signature du client vérifiée !");
+                logger.info("Signature du client vérifiée");
             }
 
             // Etape 4: Calcul du secret commun
@@ -172,7 +178,7 @@ public class ClientHandler implements Runnable {
 
             // Etape 5: Calculs de la clef AES
             key = new SecretKeySpec(secretcommun, 0, 32, "AES"); // AES-256
-            System.out.println("🔑 Clef AES: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+            logger.info("Clef AES: {}", Base64.getEncoder().encodeToString(key.getEncoded()));
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Erreur lors de la génération des clefs: " + e);
         } catch (IOException e) {
@@ -201,7 +207,7 @@ public class ClientHandler implements Runnable {
             output.println(cipherText);
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
-            System.out.println("Erreur lors de cryptage du message : " + e);
+            logger.error("Erreur lors de cryptage du message : {}", e);
         }
     }
 
@@ -220,7 +226,7 @@ public class ClientHandler implements Runnable {
             return message;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
-            System.out.println("Erreur lors du décryptage : " + e);
+            logger.error("Erreur lors du décryptage : {}", e);
             return "ERREUR";
         }
     }

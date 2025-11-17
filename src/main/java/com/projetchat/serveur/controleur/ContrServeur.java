@@ -79,6 +79,7 @@ public class ContrServeur extends Control implements Initializable {
         int port = spinnerPort.getValue();
         serveur = new Serveur(port);
         Thread thread = new Thread(serveur);
+        thread.setName("Serveur");
         thread.setDaemon(true);
         thread.start();
     }
