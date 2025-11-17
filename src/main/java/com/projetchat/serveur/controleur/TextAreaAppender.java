@@ -29,10 +29,11 @@ public class TextAreaAppender extends AbstractAppender {
      * 
      * @param textArea
      */
-    public TextAreaAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
+    public TextAreaAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions,
+            Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);
     }
-    
+
     public static void setTextArea(TextArea textArea) {
         TextAreaAppender.textArea = textArea;
     }
@@ -40,7 +41,8 @@ public class TextAreaAppender extends AbstractAppender {
     // Méthode appelée par Log4j à chaque log
     @Override
     public void append(LogEvent event) {
-        if (textArea == null) return;
+        if (textArea == null)
+            return;
 
         // Formater le message selon le layout défini dans le XML
         String message = new String(getLayout().toByteArray(event));

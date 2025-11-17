@@ -5,8 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 
-/*Classe du serveur de chat */
-public class Serveur implements Runnable{
+/* Classe du serveur de chat */
+public class Serveur implements Runnable {
     /** Le port du serveur */
     private final int port;
 
@@ -22,7 +22,7 @@ public class Serveur implements Runnable{
     /**
      * Méthode qui démarre le serveur
      */
-    private void start() throws IOException{
+    private void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Serveur démarré sur le port " + port);
 
@@ -30,7 +30,7 @@ public class Serveur implements Runnable{
                 Socket socket = serverSocket.accept();
                 System.out.println("Nouveau client connecté : " + socket.getInetAddress());
 
-                //Thread du nouveau client
+                // Thread du nouveau client
                 ClientHandler client = new ClientHandler(socket);
                 new Thread(client).start();
             }
