@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="com.projetchat.serveur.controleur">
+    <Appenders>
+        <!-- Console -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} %-5p [%t] %c - %m%n"/>
+        </Console>
+
+        <!-- Fichier -->
+        <File name="FileLogger" fileName="logs/app.log" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c - %m%n"/>
+        </File>
+
+        <!-- TextArea -->
+        <TextAreaAppender name="TextArea">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c - %m%n"/>
+        </TextAreaAppender>
+    </Appenders>
+
+    <Loggers>
+        <!-- Logger de l'application -->
+        <Logger name="com.projetchat" level="debug">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileLogger"/>
+            <AppenderRef ref="TextArea"/>
+        </Logger>
+
+        <!-- Logger par défaut -->
+        <Root level="debug">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 public class Serveur implements Runnable{
     /** Le port du serveur */
     private final int port;
-    /** L'ensemble des clients */
 
     /**
      * Instencie un nouveau serveur
