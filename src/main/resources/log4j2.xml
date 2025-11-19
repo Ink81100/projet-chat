@@ -8,7 +8,7 @@
 
         <!-- Fichier -->
         <File name="FileLogger" fileName="logs/app.log" append="true">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] - %m%n"/>
         </File>
 
         <!-- TextArea -->
