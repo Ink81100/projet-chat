@@ -8,7 +8,10 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/* Classe du serveur de chat */
+/**
+ * Le serveur de chat.
+ * @author RUIZ Adrien
+ */
 public class Serveur implements Runnable {
     /** Le gestionnaire de logs */
     private static final Logger logger = LogManager.getLogger(Serveur.class);

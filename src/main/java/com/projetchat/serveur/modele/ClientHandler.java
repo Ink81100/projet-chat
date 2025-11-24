@@ -33,7 +33,9 @@ import org.apache.logging.log4j.Logger;
 import com.projetchat.CryptoHandler;
 
 /**
- * Classe permettant de gérer le client
+ * Classe permettant de gérer le client.
+ * 
+ * @author RUIZ Adrien
  */
 public class ClientHandler implements Runnable {
     /** Le gestionnaire de logs */
@@ -48,8 +50,8 @@ public class ClientHandler implements Runnable {
     private final BufferedReader input;
     private final PrintWriter output;
 
-    /** L'ensemble des clients existant */
-    private static Set<ClientHandler> clients = new HashSet<>();
+    /** L'ensemble des threads des clients existant */
+    private static Set<ClientHandler> clientsThread = new HashSet<>();
     /** Le nom du client */
     private String clientName;
 
@@ -57,7 +59,9 @@ public class ClientHandler implements Runnable {
         this.socket = socket;
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         output = new PrintWriter(this.socket.getOutputStream(), true);
-        clients.add(this);
+
+        // Ajout du thread
+        clientsThread.add(this);
 
     }
 
@@ -99,7 +103,7 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        clients.remove(this);
+        clientsThread.remove(this);
         broadcast("❌ " + clientName + " a quitté le chat.");
         logger.info("{} à quitter le chat", clientName);
     }
@@ -237,7 +241,7 @@ public class ClientHandler implements Runnable {
      * @param message le message à envoyer
      */
     protected static void broadcast(String message) {
-        for (ClientHandler client : clients) {
+        for (ClientHandler client : clientsThread) {
             client.envois(message);
         }
     }
