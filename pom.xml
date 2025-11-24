@@ -49,6 +49,13 @@
             <artifactId>log4j-core</artifactId>
             <version>2.23.1</version>
         </dependency>
+
+        <!-- SQLite -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.51.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,6 +77,7 @@
     </build>
 
     <profiles>
+        <!-- Serveur -->
         <profile>
             <id>serveur</id>
 
