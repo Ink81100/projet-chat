@@ -1,4 +1,4 @@
-package com.projetchat.client.vue.connexion;
+package com.projetchat.client.vue;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,18 +9,12 @@ public class Connexion extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-        // Chargement du fxml
+        //CHagement du FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/connection.fxml"));
         Scene scene = new Scene(loader.load());
-
-        // Paramètrage de la fenêtre
-        stage.setTitle("Projet chat - Connexion");
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setTitle("Messagerie JavaFX");
         stage.show();
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
+    
 }

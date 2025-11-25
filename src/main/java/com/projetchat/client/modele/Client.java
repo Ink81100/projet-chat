@@ -1,4 +1,4 @@
-package com.projetchat.client;
+package com.projetchat.client.modele;
 
 import java.io.BufferedReader;
 import java.io.IOException;

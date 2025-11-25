@@ -97,6 +97,21 @@
 
         <profile>
             <id>client</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openjfx</groupId>
+                        <artifactId>javafx-maven-plugin</artifactId>
+                        <configuration>
+                            <mainClass>com.projetchat.client.vue.Connexion</mainClass>
+                        </configuration>
+                        <version>0.0.8</version>
+                    </plugin>
+                </plugins>  
+            </build>
+
+
         </profile>
     </profiles>
 
