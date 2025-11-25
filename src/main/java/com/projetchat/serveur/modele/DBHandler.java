@@ -9,15 +9,21 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
- * Permet de stocké les messages dans une base de données
+ * Permet de gérer les messages dans une base de données
  * 
  * 
  * @author RUIZ Adrien
  */
 public final class DBHandler {
-    // Le lien vers la base de données
-    private static String url = "jdbc:sqlite:messages.sql";
+    /** Le gestionnaire de logs */
+    private static final Logger logger = LogManager.getLogger(DBHandler.class);
+
+    /* Le lien vers la base de données */
+    private static String url = "jdbc:sqlite:messages.db";
 
     /**
      * Créer la base de données et Initialise la table messages
@@ -95,6 +101,43 @@ public final class DBHandler {
         }
     }
 
+    public static void addMessage(String utilisateur, String message) {
+        try {
+            // Connection à la base de données
+            Connection connection = DriverManager.getConnection(url);
+
+            // Requête préparer (Evite les injections SQL) 
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO messages (utilisateur, message) VALUES (?, ?)");
+
+            insertStatement.setString(1, utilisateur);
+            insertStatement.setString(2, message);
+
+            // Insertion
+            insertStatement.execute();
+        } catch (SQLException e) {
+            logger.error("Erreur lors de l'ajout d'un message dans la base de données : {}", e);
+        }
+    }
+
+    public static int size() {
+        try {
+            Connection connection = DriverManager.getConnection(url);
+
+            PreparedStatement countStatement = connection.prepareStatement(
+                "SELECT COUNT(*) FROM messages"
+            );
+
+            ResultSet resultSet = countStatement.executeQuery();
+            return resultSet.getInt(1);
+
+        } catch (SQLException e) {
+            logger.error("Erreur lors du calculs du nombre de messages : {}", e);
+            return 0;
+        }
+
+
+    }
     /**
      * Met à jours le liens vers la base de données
      * 

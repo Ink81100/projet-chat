@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,11 @@ public class Serveur implements Runnable {
      */
     private void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            // Initialisation de la BDD
+            if (!DBHandler.isInit()) {
+                DBHandler.creerDB();
+            }
+
             logger.info("Serveur démarré sur le port {}", port);
 
             while (true) {
@@ -45,10 +51,14 @@ public class Serveur implements Runnable {
                 thread.setDaemon(true);
                 thread.start();
             }
+        } catch (SQLException e) {
+            logger.fatal("Erreur au niveeau de la base de données : " + e);
         }
     }
 
-    /** Envois un message à tous les utilisateurs */
+    /** 
+     * Envois un message à tous les utilisateurs
+     */
     public void broadcast(String message) {
         ClientHandler.broadcast(message);
     }
