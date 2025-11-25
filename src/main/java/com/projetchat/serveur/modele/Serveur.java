@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Le serveur de chat.
+ * 
  * @author RUIZ Adrien
  */
 public class Serveur implements Runnable {
