@@ -20,9 +20,9 @@ public class TestDB {
         try {
             File db = tempDBTestPath.resolve("messages.db").toFile();
             assertFalse(db.exists());
-            DBHandler dbHandler = new DBHandler(db.getCanonicalPath());
-            dbHandler.creerDB();
-            assertTrue(dbHandler.isInit());
+            DBHandler.setUrl(db.getCanonicalPath());
+            DBHandler.creerDB();
+            assertTrue(DBHandler.isInit());
         } catch (SQLException | IOException e) {
             System.out.println("Une erreur est survenue : " + e);
         }

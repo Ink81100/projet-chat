@@ -17,11 +17,7 @@ import java.util.Map;
  */
 public final class DBHandler {
     // Le lien vers la base de données
-    private final String url;
-
-    public DBHandler(String url) {
-        this.url =  "jdbc:sqlite:" + url;
-    }
+    private static String url = "jdbc:sqlite:messages.sql";
 
     /**
      * Créer la base de données et Initialise la table messages
@@ -31,7 +27,7 @@ public final class DBHandler {
      * @throws IOException
      * @throws SQLException
      */
-    public void creerDB() throws SQLException, IOException {
+    public static void creerDB() throws SQLException, IOException {
         // Initialisation
         Connection connection = DriverManager.getConnection(url);
 
@@ -55,7 +51,7 @@ public final class DBHandler {
      * 
      * @return {@code true} si elle est initialisé, sinon {@code false}.
      */
-    public boolean isInit() {
+    public static boolean isInit() {
         try {
             Connection connection = DriverManager.getConnection(url);
 
@@ -65,7 +61,7 @@ public final class DBHandler {
 
             ResultSet tableResultSet = tableStatement.executeQuery();
 
-            if (!tableResultSet.next()){
+            if (!tableResultSet.next()) {
                 return false;
             }
 
@@ -78,8 +74,7 @@ public final class DBHandler {
             collones.put("date", "DATETIME");
 
             PreparedStatement colStatement = connection.prepareStatement(
-                "PRAGMA table_info(messages);"
-            );
+                    "PRAGMA table_info(messages);");
 
             ResultSet colResultSet = colStatement.executeQuery();
 
@@ -87,7 +82,8 @@ public final class DBHandler {
                 String colNom = colResultSet.getString("name");
                 String colType = colResultSet.getString("type");
 
-                if (!collones.remove(colNom, colType)) return false;
+                if (!collones.remove(colNom, colType))
+                    return false;
             }
 
             connection.close();
@@ -97,5 +93,14 @@ public final class DBHandler {
             System.out.println("La table n'est pas initialisée : " + e);
             return false;
         }
+    }
+
+    /**
+     * Met à jours le liens vers la base de données
+     * 
+     * @param url Le liens vers la base de données
+     */
+    public static void setUrl(String url) {
+        DBHandler.url = url;
     }
 }
