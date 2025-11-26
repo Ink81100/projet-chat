@@ -1,4 +1,4 @@
-package com.projetchat.client.modele;
+package com.projetchat.client.controlleur;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,21 +15,26 @@ import javax.crypto.SecretKey;
 
 import com.projetchat.CryptoHandler;
 
+import javafx.scene.control.TextArea;
+
 /**
  * Gére l'écoute de message et l'affiche
  */
 public class EcouteHandler implements Runnable {
     private final BufferedReader input;
     private SecretKey key;
+    private final TextArea textArea;
 
     /**
      * Initialise le thread
      * @param socket le socket de connexion au serveur
      * @throws IOException
      */
-    public EcouteHandler(Socket socket, SecretKey key) throws IOException {
+    public EcouteHandler(TextArea textArea, Socket socket, SecretKey key) throws IOException {
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.key = key;
+        this.textArea = textArea;
+
     }
 
     /**
@@ -38,10 +43,10 @@ public class EcouteHandler implements Runnable {
     @Override
     public void run() {
         try {
-            //Boucle d'éxécution
+            //Boucle de lecture
             String reponse;
             while ((reponse = input.readLine()) != null) {
-                System.out.println(recois(reponse));
+                textArea.appendText(recois(reponse) + "\n");
             }
         } catch (IOException e) {
             System.out.println("Déconnecté du serveur.");

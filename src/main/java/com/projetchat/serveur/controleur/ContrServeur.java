@@ -50,7 +50,7 @@ public class ContrServeur extends Control implements Initializable {
     /** Initialise la zone d'entrée du port et l'affichage des logs */
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-        // Initialisation de
+        // Initialisation
         spinnerPort.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 10001));
 
         // Affichage des logs dans l'ui

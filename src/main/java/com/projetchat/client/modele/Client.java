@@ -17,7 +17,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Scanner;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -33,15 +32,14 @@ public class Client {
     private final String adresse;
     /** Le port du serveur */
     private final int port;
-    /** Le nom du client */
-    private final String nom;
+
     /** La clef AES */
     private SecretKey key;
     /** Le socket de connexion */
     private Socket socket;
 
     private PrintWriter output;
-    private BufferedReader console, input;
+    private BufferedReader input;
 
     /**
      * Le constructeur du client
@@ -50,51 +48,27 @@ public class Client {
      * @param port    Le port du serveur
      * @param nom     Le nom du client
      */
-    public Client(String adresse, int port, String nom) {
+    public Client(String adresse, int port) {
         this.adresse = adresse;
         this.port = port;
-        this.nom = nom;
     }
 
-    /** Démarre le client */
-    public void start() {
-        try {
+    /**
+     * Démarre le client et récupère la clef
+     * @throws IOException
+     */
+    public void start() throws IOException{
             socket = new Socket(adresse, port);
             System.out.println("Connecté au serveur.");
 
             output = new PrintWriter(socket.getOutputStream(), true);
-            console = new BufferedReader(new InputStreamReader(System.in));
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // Diffie-Hellman
             diffie();
-
-            // Thread pour écouter les messages du serveur
-            EcouteHandler ecouteHandler = new EcouteHandler(socket, key);
-            new Thread(ecouteHandler).start();
-
-            // Envois du nom
-            envois(nom, key, output);
-
-            // Envoi des messages depuis la console
-            boolean run = true;
-            while (run) {
-                String message = console.readLine();
-                envois(message, key, output);
-                
-                if (message.equals("bye")) {
-                    run = false;
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            close();
-        }
     }
 
-    private void close() {
+    public void close() {
         System.out.println("Fermeture de la communication avec le server...");
         try {
             socket.close();
@@ -188,7 +162,7 @@ public class Client {
         }
     }
 
-    private void envois(String message, SecretKey key, PrintWriter output) {
+    public void envois(String message) {
         try {
             String cipherText = Base64.getEncoder().encodeToString(CryptoHandler.crypte(message, key));
             output.println(cipherText);
@@ -198,17 +172,11 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    public SecretKey getKey() {
+        return key;
+    }
 
-        // Initialisation
-        int port = 10001;
-        String adresse = "localhost";
-        String nom = scanner.next();
-
-        Client client = new Client(adresse, port, nom);
-        client.start();
-
-        scanner.close();
+    public Socket getSocket() {
+        return socket;
     }
 }

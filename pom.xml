@@ -104,7 +104,7 @@
                         <groupId>org.openjfx</groupId>
                         <artifactId>javafx-maven-plugin</artifactId>
                         <configuration>
-                            <mainClass>com.projetchat.client.vue.Connexion</mainClass>
+                            <mainClass>com.projetchat.client.vue.ClientViewer</mainClass>
                         </configuration>
                         <version>0.0.8</version>
                     </plugin>
