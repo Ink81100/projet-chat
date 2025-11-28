@@ -58,14 +58,14 @@ public final class DBHandler {
      * @return {@code true} si elle est initialisé, sinon {@code false}.
      */
     public static boolean isInit() {
-        try {
-            Connection connection = DriverManager.getConnection(url);
+        try (
+                Connection connection = DriverManager.getConnection(url);
 
-            // Vérification de la présence la table
-            PreparedStatement tableStatement = connection.prepareStatement(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='messages';");
+                // Vérification de la présence la table
+                PreparedStatement tableStatement = connection.prepareStatement(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='messages';");
 
-            ResultSet tableResultSet = tableStatement.executeQuery();
+                ResultSet tableResultSet = tableStatement.executeQuery();) {
 
             if (!tableResultSet.next()) {
                 return false;
@@ -102,13 +102,12 @@ public final class DBHandler {
     }
 
     public static void addMessage(String utilisateur, String message) {
-        try {
-            // Connection à la base de données
-            Connection connection = DriverManager.getConnection(url);
-
-            // Requête préparer (Evite les injections SQL) 
-            PreparedStatement insertStatement = connection.prepareStatement(
-                    "INSERT INTO messages (utilisateur, message) VALUES (?, ?)");
+        try (
+                // Connection à la base de données
+                Connection connection = DriverManager.getConnection(url);
+                // Requête préparer (Evite les injections SQL)
+                PreparedStatement insertStatement = connection.prepareStatement(
+                        "INSERT INTO messages (utilisateur, message) VALUES (?, ?)");) {
 
             insertStatement.setString(1, utilisateur);
             insertStatement.setString(2, message);
@@ -121,29 +120,30 @@ public final class DBHandler {
     }
 
     public static int size() {
-        try {
-            Connection connection = DriverManager.getConnection(url);
+        try (
+                Connection connection = DriverManager.getConnection(url);
+                PreparedStatement countStatement = connection.prepareStatement(
+                        "SELECT COUNT(*) FROM messages;");
+                ResultSet resultSet = countStatement.executeQuery();) {
 
-            PreparedStatement countStatement = connection.prepareStatement(
-                "SELECT COUNT(*) FROM messages"
-            );
-
-            ResultSet resultSet = countStatement.executeQuery();
-            return resultSet.getInt(1);
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            } else
+                throw new SQLException("Aucun résultat");
 
         } catch (SQLException e) {
             logger.error("Erreur lors du calculs du nombre de messages : {}", e);
             return 0;
         }
 
-
     }
+
     /**
      * Met à jours le liens vers la base de données
      * 
      * @param url Le liens vers la base de données
      */
     public static void setUrl(String url) {
-        DBHandler.url = url;
+        DBHandler.url = "jdbc:sqlite:" + url;
     }
 }

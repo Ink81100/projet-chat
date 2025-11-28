@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -17,9 +18,14 @@ public class TestDB {
     static Path tempDBTestPath;
 
     @BeforeAll
-    static void initDB() throws IOException{
+    static void initDB() throws IOException {
         File db = tempDBTestPath.resolve("messages.db").toFile();
         DBHandler.setUrl(db.getCanonicalPath());
+    }
+
+    @BeforeEach
+    void creerDB() throws SQLException, IOException {
+        DBHandler.creerDB();
     }
 
     @Test
