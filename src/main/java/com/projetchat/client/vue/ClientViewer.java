@@ -9,7 +9,7 @@ public class ClientViewer extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-        //CHagement du FXML
+        //Chargement du FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/clientViewer.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
