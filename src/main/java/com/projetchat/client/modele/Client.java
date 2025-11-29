@@ -27,6 +27,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.projetchat.CryptoHandler;
 
+/**
+ * La classe qui représente le client
+ */
 public class Client {
     /** L'adresse du serveur */
     private final String adresse;
@@ -38,7 +41,9 @@ public class Client {
     /** Le socket de connexion */
     private Socket socket;
 
+    /** La sortie */
     private PrintWriter output;
+    /** L'entrée */
     private BufferedReader input;
 
     /**
@@ -46,7 +51,6 @@ public class Client {
      * 
      * @param adresse L'adresse du serveur
      * @param port    Le port du serveur
-     * @param nom     Le nom du client
      */
     public Client(String adresse, int port) {
         this.adresse = adresse;
@@ -55,7 +59,7 @@ public class Client {
 
     /**
      * Démarre le client et récupère la clef
-     * @throws IOException
+     * @throws IOException Si une Erreur I/O se déclenche
      */
     public void start() throws IOException{
             socket = new Socket(adresse, port);
@@ -68,6 +72,9 @@ public class Client {
             diffie();
     }
 
+    /**
+     * Ferme la connection avec le serveur
+     */
     public void close() {
         System.out.println("Fermeture de la communication avec le server...");
         try {
@@ -162,6 +169,10 @@ public class Client {
         }
     }
 
+    /**
+     * Envois un message au serveur
+     * @param message Le message à transmettre
+     */
     public void envois(String message) {
         try {
             String cipherText = Base64.getEncoder().encodeToString(CryptoHandler.crypte(message, key));
@@ -172,10 +183,18 @@ public class Client {
         }
     }
 
+    /**
+     * Renvois la clef secrète
+     * @return la clef secrète
+     */
     public SecretKey getKey() {
         return key;
     }
 
+    /**
+     * Renvois le socket de connexion
+     * @return le socket de connexion
+     */
     public Socket getSocket() {
         return socket;
     }

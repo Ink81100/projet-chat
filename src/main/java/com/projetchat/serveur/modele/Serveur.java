@@ -22,8 +22,6 @@ public class Serveur implements Runnable {
 
     /**
      * Instencie un nouveau serveur
-     * 
-     * @throws NoSuchAlgorithmException
      */
     public Serveur(int port) {
         this.port = port;

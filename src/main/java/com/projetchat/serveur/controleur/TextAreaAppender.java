@@ -24,10 +24,14 @@ public class TextAreaAppender extends AbstractAppender {
     /** La zone de texte */
     private static TextArea textArea;
 
+
     /**
-     * Constructeur de TextAreaAppender
-     * 
-     * @param textArea
+     * Le constructeur de textArea
+     * @param name le nom
+     * @param filter le filtre
+     * @param layout le layout
+     * @param ignoreExceptions les exceptions à ignorer
+     * @param properties les propriétés
      */
     public TextAreaAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions,
             Property[] properties) {

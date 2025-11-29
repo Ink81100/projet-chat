@@ -18,19 +18,22 @@ import javafx.scene.control.TextField;
  * 
  * @author RUIZ Adrien
  */
-public class ContrClient implements Initializable{
+public class ContrClient implements Initializable {
     /** Le client */
     private Client client;
 
-    /** Lazone d'entrée du nom d'utilisateur */
+    /** Le thread d'écoute du client */
+    private Thread ecouteThread;
+
+    /** La zone d'entrée du nom d'utilisateur */
     @FXML
     private TextField nomField;
 
-    /* La zone d'entrer de l'ip du serveur */
+    /** La zone d'entrer de l'ip du serveur */
     @FXML
     private TextField ipField;
 
-    /* La zone d'entrer du port du server */
+    /** La zone d'entrer du port du server */
     @FXML
     private Spinner<Integer> portSpinner;
 
@@ -42,6 +45,9 @@ public class ContrClient implements Initializable{
     @FXML
     private TextArea textAreaConsole;
 
+    /**
+     * Démarre la communication du client
+     */
     @FXML
     private void startClient() {
         try {
@@ -51,16 +57,17 @@ public class ContrClient implements Initializable{
             int port = portSpinner.getValue();
 
             client = new Client(ip, port);
-            
+
             client.start();
 
-            //Transmission du nom du client au serveur
+            // Transmission du nom du client au serveur
             client.envois(nom);
 
             // On démarre l'écoute
             initEcoute();
-        } catch (NumberFormatException e) {
-            System.out.println();
+
+            // On autorise l'édition de texte
+            textFieldEnvois.setEditable(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -68,16 +75,20 @@ public class ContrClient implements Initializable{
 
     /**
      * Initialise le thread d'écoute
-     * @throws IOException
+     * 
+     * @throws IOException Si une Erreur I/O se déclenche
      */
-    private void initEcoute() throws IOException{
+    private void initEcoute() throws IOException {
         EcouteHandler ecouteHandler = new EcouteHandler(textAreaConsole, client.getSocket(), client.getKey());
-        Thread thread = new Thread(ecouteHandler);
-        thread.setDaemon(true);
-        thread.setName("Ecoute");
-        thread.start();
+        ecouteThread = new Thread(ecouteHandler);
+        ecouteThread.setDaemon(true);
+        ecouteThread.setName("Ecoute");
+        ecouteThread.start();
     }
 
+    /**
+     * Envoisd un message au serveur
+     */
     @FXML
     private void envoisServeur() {
         // On récupère le message
@@ -88,9 +99,23 @@ public class ContrClient implements Initializable{
 
         if (message.equals("bye")) {
             // Fermeture de la connexion
-            client.close();
-            
+            bye();
+
         }
+
+        // On eneleve le texte entré
+        textFieldEnvois.setText("");
+    }
+
+    /**
+     * Arrêt de la communication au serveur
+     */
+    private void bye() {
+        // Arrêt d'écoute de message
+        client.close();
+
+        // On bloque la zone de texte et le bouton
+        textFieldEnvois.setEditable(false);
     }
 
     @Override

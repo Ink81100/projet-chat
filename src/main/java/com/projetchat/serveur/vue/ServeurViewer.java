@@ -18,4 +18,12 @@ public class ServeurViewer extends Application {
         stage.setResizable(true);
         stage.show();
     }
+
+    /**
+     * Lance l'application java
+     * @param args
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

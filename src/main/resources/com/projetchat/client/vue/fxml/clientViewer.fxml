@@ -38,7 +38,7 @@
    <bottom>
       <FlowPane BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="textFieldEnvois" onAction="#envoisServeur" prefHeight="26.0" prefWidth="621.0" />
+            <TextField fx:id="textFieldEnvois" editable="false" onAction="#envoisServeur" prefHeight="26.0" prefWidth="621.0" />
             <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#envoisServeur" text="Envois" />
          </children>
       </FlowPane>

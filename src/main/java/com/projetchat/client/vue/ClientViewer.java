@@ -5,6 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * L'application JavaFX du client
+ */
 public class ClientViewer extends Application{
 
     @Override
@@ -15,5 +18,13 @@ public class ClientViewer extends Application{
         stage.setScene(scene);
         stage.setTitle("Messagerie JavaFX");
         stage.show();
+    }
+
+    /**
+     * Lance l'application java
+     * @param args les arguments de lancement
+     */
+    public static void main(String[] args) {
+        launch(args);
     }
 }

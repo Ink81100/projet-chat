@@ -4,6 +4,6 @@ import com.projetchat.serveur.vue.ServeurViewer;
 
 public class Main {
     public static void main(String[] args) {
-        ServeurViewer.launch(args);
+        ServeurViewer.main(args);
     }
 }

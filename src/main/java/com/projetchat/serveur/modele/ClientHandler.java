@@ -47,7 +47,10 @@ public class ClientHandler implements Runnable {
     /** La clef de chiffrement AES */
     private SecretKey key;
 
+    /** L'entrée */
     private final BufferedReader input;
+
+    /** La sortie */
     private final PrintWriter output;
 
     /** L'ensemble des threads des clients existant */
@@ -55,6 +58,11 @@ public class ClientHandler implements Runnable {
     /** Le nom du client */
     private String clientName;
 
+    /**
+     * Crée un nouveau gestionnaire de client
+     * @param socket le socket de connexion
+     * @throws IOException Si une Erreur I/O se déclenche
+     */
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
         input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -81,8 +89,13 @@ public class ClientHandler implements Runnable {
                 // Décryptage
                 String message = recois(input.readLine());
 
+                // Envois
                 broadcast("💬 " + clientName + " : " + message);
                 logger.info("<{}> {}", clientName, message);
+
+
+                // Stockage du message dans la BDD
+                DBHandler.addMessage(clientName, message);
 
                 // Vérification du message
                 if (message.equals("bye")) {

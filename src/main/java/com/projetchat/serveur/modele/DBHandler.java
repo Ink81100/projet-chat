@@ -30,8 +30,8 @@ public final class DBHandler {
      * <p>
      * Si la table existait déjà, elle sera supprimée
      * 
-     * @throws IOException
-     * @throws SQLException
+     * @throws IOException Si une Erreur I/O se déclenche
+     * @throws SQLException Si une Erreur SQL se déclenche
      */
     public static void creerDB() throws SQLException, IOException {
         // Initialisation
@@ -101,6 +101,11 @@ public final class DBHandler {
         }
     }
 
+    /**
+     * Ajoute un message à la base de données
+     * @param utilisateur l'auteur du message
+     * @param message le message
+     */
     public static void addMessage(String utilisateur, String message) {
         try (
                 // Connection à la base de données
@@ -119,6 +124,10 @@ public final class DBHandler {
         }
     }
 
+    /**
+     * Renvois le nombre de message dans la BDD
+     * @return le nombre de message dans la BDD
+     */
     public static int size() {
         try (
                 Connection connection = DriverManager.getConnection(url);
