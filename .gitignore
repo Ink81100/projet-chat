@@ -1,6 +1,9 @@
 #Maven
 /target
 
+# Fichiers générés par Maven Shade Plugin
+dependency-reduced-pom.xml
+
 #Logs
 /logs
 
