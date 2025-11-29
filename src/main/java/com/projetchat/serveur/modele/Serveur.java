@@ -3,7 +3,6 @@ package com.projetchat.serveur.modele;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
 import org.apache.logging.log4j.LogManager;
