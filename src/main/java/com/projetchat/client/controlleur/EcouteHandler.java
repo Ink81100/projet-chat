@@ -14,6 +14,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import com.projetchat.CryptoHandler;
+import com.projetchat.Message;
 
 import javafx.scene.control.TextArea;
 
@@ -27,6 +28,7 @@ public class EcouteHandler implements Runnable {
 
     /**
      * Initialise le thread
+     * 
      * @param socket le socket de connexion au serveur
      * @throws IOException
      */
@@ -46,7 +48,24 @@ public class EcouteHandler implements Runnable {
             //Boucle de lecture
             String reponse;
             while ((reponse = input.readLine()) != null) {
-                textArea.appendText(recois(reponse) + "\n");
+                String json = recois(reponse);
+                System.out.println(json);
+
+                Message message = Message.fromJson(json);
+
+                switch (message.getType()) {
+                    case ANNONCE:
+                        String annonce = String.format("%s | Annonce de %s : %s", message.getDate().toString(), message.getUtilisateur(), message.getContenu());
+                        textArea.appendText(annonce);
+                        break;
+                
+                    case MESSAGE:
+                        textArea.appendText(String.format("%s | %s : %s", message.getDate().toString(), message.getUtilisateur(), message.getContenu()));
+                        break;
+                    default:
+                        System.err.println("Type du message pas pris en charge : " + message.getType());
+                    
+                }
             }
         } catch (IOException e) {
             System.out.println("Déconnecté du serveur.");

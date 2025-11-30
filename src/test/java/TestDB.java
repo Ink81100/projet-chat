@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.projetchat.Message;
 import com.projetchat.serveur.modele.DBHandler;
 
 public class TestDB {
@@ -40,7 +41,8 @@ public class TestDB {
 
     @Test
     void ajouteMessage() {
-        DBHandler.addMessage("A", "test");
+        Message message = new Message(Message.Type.MESSAGE, "A", "Test");
+        DBHandler.addMessage(message);
         assertEquals(1, DBHandler.size(), "La base n'est pas de la bonne taiile");
     }
 }

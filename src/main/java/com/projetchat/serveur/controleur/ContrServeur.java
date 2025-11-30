@@ -6,6 +6,8 @@ import java.util.ResourceBundle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.projetchat.Message;
+import com.projetchat.Message.Type;
 import com.projetchat.serveur.modele.Serveur;
 
 import javafx.fxml.FXML;
@@ -66,7 +68,7 @@ public class ContrServeur extends Control implements Initializable {
         String msg = textFieldEnvois.getText();
         logger.info("Le serveur envois : " + msg);
         textFieldEnvois.clear();
-        serveur.broadcast("[Serveur] : " + msg);
+        serveur.broadcast(new Message(Type.ANNONCE, "Serveur", msg));
     }
 
     /** Démarre le serveur */

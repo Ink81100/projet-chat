@@ -13,12 +13,18 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * Classe représentant un message
  */
 public class Message {
+    public static enum Type {
+        ANNONCE, COMMAND, LISTUSER, LISTSALON, MESSAGE
+    };
+
+    /** Le type du message */
+    private final Type type;
     /** L'auteur du message. */
     private final String utilisateur;
     /** Le contenu du message. */
     private final String contenu;
     /** La date de création du message. */
-    public final LocalDateTime date;
+    private final LocalDateTime date;
 
     /**
      * Instancie un Objet message.
@@ -26,7 +32,8 @@ public class Message {
      * @param utilisateur L'auteur du message.
      * @param contenu     Le contenu du message.
      */
-    public Message(String utilisateur, String contenu) {
+    public Message(Type type, String utilisateur, String contenu) {
+        this.type = type;
         this.utilisateur = utilisateur;
         this.contenu = contenu;
         this.date = LocalDateTime.now();
@@ -41,9 +48,11 @@ public class Message {
      */
     @JsonCreator
     public Message(
+            @JsonProperty("type") Type type,
             @JsonProperty("utilisateur") String utilisateur,
             @JsonProperty("contenu") String contenu,
             @JsonProperty("date") LocalDateTime date) {
+        this.type = type;
         this.utilisateur = utilisateur;
         this.contenu = contenu;
         this.date = date;
@@ -85,6 +94,15 @@ public class Message {
     }
 
     /**
+     * Renvois le type du message
+     * 
+     * @return le type du message
+     */
+    public Type getType() {
+        return type;
+    }
+
+    /**
      * Renvois l'utilisateur à la source du message.
      * 
      * @return l'utilisateur à la source du message.
@@ -112,23 +130,25 @@ public class Message {
     }
 
     @Override
-    public String toString() {
-        return "Message [utilisateur=" + utilisateur + ", contenu=" + contenu + ", date=" + date + "]";
-    }
-
-    @Override
     public boolean equals(Object obj) {
         // Vérification de la classe
         if (obj.getClass().equals(Message.class)) {
             Message message = (Message) obj;
 
+            boolean type = this.getType().equals(message.getType());
             boolean utilisateur = this.getUtilisateur().equals(message.getUtilisateur());
             boolean contenu = this.getContenu().equals(message.getContenu());
             boolean date = this.getDate().equals(message.getDate());
 
-            return utilisateur && contenu && date;
+            return type && utilisateur && contenu && date;
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Message [type=" + type + ", utilisateur=" + utilisateur + ", contenu=" + contenu + ", date=" + date
+                + "]";
     }
 }

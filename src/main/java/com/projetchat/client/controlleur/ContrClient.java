@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.projetchat.Message;
+import com.projetchat.Message.Type;
 import com.projetchat.client.modele.Client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
@@ -45,6 +48,10 @@ public class ContrClient implements Initializable {
     @FXML
     private TextArea textAreaConsole;
 
+    /** La liste des salons */
+    @FXML
+    private ListView<String> salonList;
+
     /**
      * Démarre la communication du client
      */
@@ -56,7 +63,7 @@ public class ContrClient implements Initializable {
             String ip = ipField.getText();
             int port = portSpinner.getValue();
 
-            client = new Client(ip, port);
+            client = new Client(nom, ip, port);
 
             client.start();
 
@@ -92,15 +99,14 @@ public class ContrClient implements Initializable {
     @FXML
     private void envoisServeur() {
         // On récupère le message
-        String message = textFieldEnvois.getText();
+        Message message = new Message(Type.MESSAGE, client.getNom(), textFieldEnvois.getText());
 
         // On le transmet
         client.envois(message);
 
-        if (message.equals("bye")) {
+        if (message.getContenu().equals("bye")) {
             // Fermeture de la connexion
             bye();
-
         }
 
         // On eneleve le texte entré

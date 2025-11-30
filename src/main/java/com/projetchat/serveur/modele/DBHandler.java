@@ -6,11 +6,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.projetchat.Message;
 
 /**
  * Permet de gérer les messages dans une base de données
@@ -44,6 +47,7 @@ public final class DBHandler {
         PreparedStatement iniStatement = connection.prepareStatement(
                 "CREATE TABLE messages ("
                         + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + "type TEXT, "
                         + "utilisateur TEXT, "
                         + "message TEXT, "
                         + "date DATETIME DEFAULT CURRENT_TIMESTAMP"
@@ -75,6 +79,7 @@ public final class DBHandler {
             Map<String, String> collones = new HashMap<>();
             // Ajout des collones
             collones.put("id", "INTEGER");
+            collones.put("type", "TEXT");
             collones.put("utilisateur", "TEXT");
             collones.put("message", "TEXT");
             collones.put("date", "DATETIME");
@@ -106,16 +111,18 @@ public final class DBHandler {
      * @param utilisateur l'auteur du message
      * @param message le message
      */
-    public static void addMessage(String utilisateur, String message) {
+    public static void addMessage(Message message) {
         try (
                 // Connection à la base de données
                 Connection connection = DriverManager.getConnection(url);
                 // Requête préparer (Evite les injections SQL)
                 PreparedStatement insertStatement = connection.prepareStatement(
-                        "INSERT INTO messages (utilisateur, message) VALUES (?, ?)");) {
+                        "INSERT INTO messages (type, utilisateur, message, date) VALUES (?, ?, ?, ?)");) {
 
-            insertStatement.setString(1, utilisateur);
-            insertStatement.setString(2, message);
+            insertStatement.setString(1, message.getType().toString());
+            insertStatement.setString(2, message.getUtilisateur());
+            insertStatement.setString(3, message.getContenu());
+            insertStatement.setString(4, message.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
             // Insertion
             insertStatement.execute();

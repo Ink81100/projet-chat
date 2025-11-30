@@ -30,7 +30,10 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.projetchat.CryptoHandler;
+import com.projetchat.Message;
+import com.projetchat.Message.Type;
 
 /**
  * Classe permettant de gérer le client.
@@ -60,6 +63,7 @@ public class ClientHandler implements Runnable {
 
     /**
      * Crée un nouveau gestionnaire de client
+     * 
      * @param socket le socket de connexion
      * @throws IOException Si une Erreur I/O se déclenche
      */
@@ -80,25 +84,28 @@ public class ClientHandler implements Runnable {
         try {
             // Lecture du nom
             clientName = recois(input.readLine());
-            broadcast("📢 " + clientName + " a rejoint le chat !");
+            broadcast(new Message(Type.ANNONCE, "Serveur", "📢 " + clientName + " a rejoint le chat !"));
             logger.info("{} a rejoint le chat", clientName);
 
             // Boucle de Lecture de message
             boolean run = true;
             while (run) {
-                // Décryptage
-                String message = recois(input.readLine());
+                // Décryptage et reception du message en json
+                String json = recois(input.readLine());
+                System.out.println(json);
+
+                // Conversion en Message
+                Message message = Message.fromJson(json);
 
                 // Envois
-                broadcast("💬 " + clientName + " : " + message);
-                logger.info("<{}> {}", clientName, message);
-
+                broadcast(message);
+                logger.info("<{}> {}", clientName, message.getContenu());
 
                 // Stockage du message dans la BDD
-                DBHandler.addMessage(clientName, message);
+                DBHandler.addMessage(message);
 
                 // Vérification du message
-                if (message.equals("bye")) {
+                if (message.getContenu().equals("bye")) {
                     run = false;
                 }
             }
@@ -117,7 +124,7 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
         clientsThread.remove(this);
-        broadcast("❌ " + clientName + " a quitté le chat.");
+        broadcast(new Message(Type.ANNONCE, "Serveur", "❌ " + clientName + " a quitté le chat."));
         logger.info("{} à quitter le chat", clientName);
     }
 
@@ -218,13 +225,21 @@ public class ClientHandler implements Runnable {
      * 
      * @param message le message à envoyer
      */
-    private void envois(String message) {
+    private void envois(Message message) {
         try {
-            String cipherText = Base64.getEncoder().encodeToString(CryptoHandler.crypte(message, key));
+            // Conversion en json
+            String json = message.toJson();
+
+            // Cryptage
+            String cipherText = Base64.getEncoder().encodeToString(CryptoHandler.crypte(json, key));
+
+            // Envois
             output.println(cipherText);
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
             logger.error("Erreur lors de cryptage du message : {}", e);
+        } catch (JsonProcessingException e) {
+            logger.error("Erreur lors de la conversion en son du message ");
         }
     }
 
@@ -253,7 +268,7 @@ public class ClientHandler implements Runnable {
      * 
      * @param message le message à envoyer
      */
-    protected static void broadcast(String message) {
+    protected static void broadcast(Message message) {
         for (ClientHandler client : clientsThread) {
             client.envois(message);
         }

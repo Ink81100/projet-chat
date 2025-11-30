@@ -25,12 +25,16 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.projetchat.CryptoHandler;
+import com.projetchat.Message;
 
 /**
  * La classe qui représente le client
  */
 public class Client {
+    /** Le nom du client */
+    private final String nom;
     /** L'adresse du serveur */
     private final String adresse;
     /** Le port du serveur */
@@ -49,10 +53,12 @@ public class Client {
     /**
      * Le constructeur du client
      * 
+     * @param nom     Le nom du client
      * @param adresse L'adresse du serveur
      * @param port    Le port du serveur
      */
-    public Client(String adresse, int port) {
+    public Client(String nom, String adresse, int port) {
+        this.nom = nom;
         this.adresse = adresse;
         this.port = port;
     }
@@ -170,7 +176,7 @@ public class Client {
     }
 
     /**
-     * Envois un message au serveur
+     * Envois un message au serveur (Chaîne de caractères)
      * @param message Le message à transmettre
      */
     public void envois(String message) {
@@ -181,6 +187,33 @@ public class Client {
                 | BadPaddingException e) {
             System.out.println("Erreur lors de cryptage du message : " + e);
         }
+    }
+
+    /**
+     * Envois un message au serveur (Objet Message)
+     * @param message Le message à transmettre
+     */
+    public void envois(Message message) {
+        try {
+            String json = message.toJson();
+            String cipherText = Base64.getEncoder().encodeToString(CryptoHandler.crypte(json, key));
+            output.println(cipherText);
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
+                | BadPaddingException e) {
+            System.out.println("Erreur lors de cryptage du message : " + e);
+        } catch (JsonProcessingException e) {
+            System.err.println("Erreur lors de la conversion du messge en json : " + e);
+        }
+    }
+
+
+
+    /**
+     * Renvois le nom du client
+     * @return Le nom du client
+     */
+    public String getNom() {
+        return nom;
     }
 
     /**

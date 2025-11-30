@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.projetchat.Message;
+
 /**
  * Le serveur de chat.
  * 
@@ -56,7 +58,7 @@ public class Serveur implements Runnable {
     /** 
      * Envois un message à tous les utilisateurs
      */
-    public void broadcast(String message) {
+    public void broadcast(Message message) {
         ClientHandler.broadcast(message);
     }
 
