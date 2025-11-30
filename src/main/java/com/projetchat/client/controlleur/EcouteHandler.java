@@ -56,11 +56,11 @@ public class EcouteHandler implements Runnable {
                 switch (message.getType()) {
                     case ANNONCE:
                         String annonce = String.format("%s | Annonce de %s : %s", message.getDate().toString(), message.getUtilisateur(), message.getContenu());
-                        textArea.appendText(annonce);
+                        textArea.appendText(annonce + "\n");
                         break;
                 
                     case MESSAGE:
-                        textArea.appendText(String.format("%s | %s : %s", message.getDate().toString(), message.getUtilisateur(), message.getContenu()));
+                        textArea.appendText(String.format("%s | %s : %s", message.getDate().toString(), message.getUtilisateur(), message.getContenu()) + "\n");
                         break;
                     default:
                         System.err.println("Type du message pas pris en charge : " + message.getType());
