@@ -17,7 +17,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.crypto.BadPaddingException;
@@ -44,6 +46,13 @@ public class ClientHandler implements Runnable {
     /** Le gestionnaire de logs */
     private static final Logger logger = LogManager.getLogger(ClientHandler.class);
 
+    /** Le dictionnaire des salons */
+    private static final Map<String, Set<ClientHandler>> salons = new HashMap<>();
+    // Initialisation du salon générale
+    static {
+        salons.put("Générale", new HashSet<>());
+    }
+
     /** Le socket de connexion */
     private Socket socket;
 
@@ -60,6 +69,8 @@ public class ClientHandler implements Runnable {
     private static Set<ClientHandler> clientsThread = new HashSet<>();
     /** Le nom du client */
     private String clientName;
+    /** Le salon du client */
+    private String salon;
 
     /**
      * Crée un nouveau gestionnaire de client
@@ -74,7 +85,6 @@ public class ClientHandler implements Runnable {
 
         // Ajout du thread
         clientsThread.add(this);
-
     }
 
     @Override
@@ -84,8 +94,11 @@ public class ClientHandler implements Runnable {
         try {
             // Lecture du nom
             clientName = recois(input.readLine());
-            broadcast(new Message(Type.ANNONCE, "Serveur", "📢 " + clientName + " a rejoint le chat !"));
-            logger.info("{} a rejoint le chat", clientName);
+            broadcast(new Message(Type.ANNONCE, "Serveur", clientName + " a rejoint le serveur !"));
+            logger.info("{} a rejoint le serveur", clientName);
+
+            // Transmission de la liste des salons
+            envoisSalons();
 
             // Boucle de Lecture de message
             boolean run = true;
@@ -97,17 +110,54 @@ public class ClientHandler implements Runnable {
                 // Conversion en Message
                 Message message = Message.fromJson(json);
 
-                // Envois
-                broadcast(message);
-                logger.info("<{}> {}", clientName, message.getContenu());
+                // Gestion du type du message
+                switch (message.getType()) {
+                    case MESSAGE:
+                        // Envois
+                        envoisMessageSalon(message);
+                        logger.info("<{}> {}", clientName, message.getContenu());
+
+                        // Vérification du message pour le bye
+                        if (message.getContenu().equals("bye")) {
+                            run = false;
+                        }
+                        break;
+                    case COMMAND:
+                        String commande = message.getContenu().split(" ")[0];
+                        String valeur = message.getContenu().split(" ")[1];
+
+                        switch (commande) {
+                            case "join":
+                                // Vérification de l'existance du salon
+                                if (!salons.keySet().contains(valeur)) {
+                                    // Création du salon
+                                    salons.put(valeur, new HashSet<>());
+                                    logger.info("création du salon {}", valeur);
+                                    envoisSalons();
+                                }
+
+                                // On retire le client du précédent salon
+                                if (salon != null) {
+                                    salons.remove(salon);
+                                }
+
+                                // Ajout du client dans le salon
+                                salon = valeur;
+                                salons.get(salon).add(this);
+                                logger.info("{} a rejoins le salon: {}", clientName, salon);
+                                break;
+
+                            default:
+                                logger.error("{}: Commande inconnus", commande);
+                                break;
+                        }
+
+                    default:
+                        break;
+                }
 
                 // Stockage du message dans la BDD
                 DBHandler.addMessage(message);
-
-                // Vérification du message
-                if (message.getContenu().equals("bye")) {
-                    run = false;
-                }
             }
         } catch (IOException e) {
             logger.error("Une errreu est survenu : {}", e);
@@ -116,14 +166,49 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    /** Ferme la connection avec le client */
+    private void envoisSalons() {
+        StringBuilder strSalons = new StringBuilder();
+
+        // Itération sur les salons
+        for (String nomSalon : salons.keySet()) {
+            strSalons.append(nomSalon);
+            strSalons.append(';');
+        }
+
+        // On retire le point virgule en trop
+        strSalons.deleteCharAt(strSalons.length() - 1);
+
+        // Création du message
+        Message message = new Message(Type.LISTSALON, "Serveur", strSalons.toString());
+
+        // Transmissions de la liste
+        envois(message);
+    }
+
+    /**
+     * Envois un message a l'ensemble des membres d'un salon
+     * 
+     * @param message Le message à transmettre
+     */
+    private void envoisMessageSalon(Message message) {
+        for (ClientHandler client : salons.get(salon)) {
+            client.envois(message);
+        }
+    }
+
+    /**
+     * Ferme la connection avec le client
+     */
     private void close() {
         try {
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // On retire le client
         clientsThread.remove(this);
+        salons.get(salon).remove(this);
         broadcast(new Message(Type.ANNONCE, "Serveur", "❌ " + clientName + " a quitté le chat."));
         logger.info("{} à quitter le chat", clientName);
     }
@@ -205,18 +290,24 @@ public class ClientHandler implements Runnable {
             logger.info("Clef AES: {}", Base64.getEncoder().encodeToString(key.getEncoded()));
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Erreur lors de la génération des clefs: " + e);
+            close();
         } catch (IOException e) {
             System.out.println("Erreur lors de la lecture des données: " + e);
+            close();
         } catch (InvalidKeySpecException e) {
             System.out.println("Erreur: " + e);
+            close();
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             System.out.println("Erreur au niveau de la clef: " + e);
+            close();
             e.printStackTrace();
         } catch (IllegalStateException e) {
+            close();
             e.printStackTrace();
         } catch (SignatureException e) {
             System.out.println("Erreur lors de la signature : " + e);
+            close();
         }
     }
 

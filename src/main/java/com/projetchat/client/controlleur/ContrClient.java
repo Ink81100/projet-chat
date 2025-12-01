@@ -75,9 +75,25 @@ public class ContrClient implements Initializable {
 
             // On autorise l'édition de texte
             textFieldEnvois.setEditable(true);
+
+            salonList.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
+                if (selected != null) {
+                    envoyerCommande("join", selected);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Envois une commande au serveur
+     * @param commande la commande
+     * @param valeur la valeur
+     */
+    private void envoyerCommande(String commande, String valeur) {
+        Message message = new Message(Type.COMMAND, client.getNom(), commande + " " + valeur);
+        client.envois(message);
     }
 
     /**
@@ -86,7 +102,7 @@ public class ContrClient implements Initializable {
      * @throws IOException Si une Erreur I/O se déclenche
      */
     private void initEcoute() throws IOException {
-        EcouteHandler ecouteHandler = new EcouteHandler(textAreaConsole, client.getSocket(), client.getKey());
+        EcouteHandler ecouteHandler = new EcouteHandler(textAreaConsole, salonList, client.getSocket(), client.getKey());
         ecouteThread = new Thread(ecouteHandler);
         ecouteThread.setDaemon(true);
         ecouteThread.setName("Ecoute");
