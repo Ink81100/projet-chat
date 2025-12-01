@@ -99,9 +99,11 @@ public class EcouteHandler implements Runnable {
                                 }
                             }
                         });
+                        break;
 
                     default:
                         System.err.println("Type du message pas pris en charge : " + message.getType());
+                        break;
 
                 }
             }
