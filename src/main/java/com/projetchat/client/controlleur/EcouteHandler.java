@@ -3,6 +3,7 @@ package com.projetchat.client.controlleur;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import javafx.scene.control.Label;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -15,11 +16,15 @@ import javax.crypto.SecretKey;
 
 import com.projetchat.CryptoHandler;
 import com.projetchat.Message;
+import com.projetchat.client.modele.Client;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 /**
  * Gére l'écoute de message et l'affiche
@@ -27,8 +32,10 @@ import javafx.scene.control.TextArea;
 public class EcouteHandler implements Runnable {
     private final BufferedReader input;
     private SecretKey key;
-    private final TextArea textArea;
+    private final ScrollPane messagesScroll;
+    private final VBox messagesVBox;
     private final ListView<String> listView;
+    private final Client client;
 
     /**
      * Initialise le thread
@@ -36,12 +43,20 @@ public class EcouteHandler implements Runnable {
      * @param socket le socket de connexion au serveur
      * @throws IOException
      */
-    public EcouteHandler(TextArea textArea, ListView<String> listView, Socket socket, SecretKey key)
+    public EcouteHandler(Client client, ScrollPane messagesScroll, VBox messagesVBox, ListView<String> listView,
+            Socket socket,
+            SecretKey key)
             throws IOException {
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.key = key;
-        this.textArea = textArea;
+        this.messagesScroll = messagesScroll;
+        this.messagesVBox = messagesVBox;
         this.listView = listView;
+        this.client = client;
+
+        this.messagesVBox.heightProperty().addListener((obs, oldVal, newVal) -> {
+            this.messagesScroll.setVvalue(1.0);
+        });
 
         this.listView.setCellFactory(list -> new ListCell<>() {
             @Override
@@ -52,7 +67,7 @@ public class EcouteHandler implements Runnable {
                     setGraphic(null);
                 } else {
                     setText(item);
-                    setStyle("-fx-padding: 10; -fx-font-size: 16;");
+                    setStyle("-fx-padding: 10;");
                 }
             }
         });
@@ -72,17 +87,33 @@ public class EcouteHandler implements Runnable {
 
                 Message message = Message.fromJson(json);
 
-                // Gestion de l'affichage dans la console
+                // Gestion des messages
                 switch (message.getType()) {
                     case ANNONCE:
-                        String annonce = String.format("%s | Annonce de %s : %s", message.getDate().toString(),
-                                message.getUtilisateur(), message.getContenu());
-                        textArea.appendText(annonce + "\n");
+                        Label annonce = new Label(String.format("%s | Annonce de %s : %s", message.getDate().toString(),
+                                message.getUtilisateur(), message.getContenu()));
+                        annonce.setAlignment(Pos.CENTER);
+
+                        Platform.runLater(() -> {
+                            messagesVBox.getChildren().add(annonce);
+                        });
                         break;
 
                     case MESSAGE:
-                        textArea.appendText(String.format("%s | %s : %s", message.getDate().toString(),
-                                message.getUtilisateur(), message.getContenu()) + "\n");
+                        boolean vous = message.getUtilisateur().equals(client.getNom());
+                        BulleMessage bulleMessage = new BulleMessage(message, vous);
+
+                        HBox ligne = new HBox(bulleMessage);
+
+                        if (vous) {
+                            ligne.setAlignment(Pos.CENTER_RIGHT);
+                        } else {
+                            ligne.setAlignment(Pos.CENTER_LEFT);
+                        }
+
+                        Platform.runLater(() -> {
+                            messagesVBox.getChildren().add(ligne);
+                        });
                         break;
 
                     case LISTSALON:
@@ -106,6 +137,7 @@ public class EcouteHandler implements Runnable {
                         break;
 
                 }
+
             }
         } catch (IOException e) {
             System.out.println("Déconnecté du serveur.");

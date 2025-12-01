@@ -87,6 +87,10 @@ public class ClientHandler implements Runnable {
         clientsThread.add(this);
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
     @Override
     public void run() {
         // Echange de clef
@@ -99,6 +103,10 @@ public class ClientHandler implements Runnable {
 
             // Transmission de la liste des salons
             envoisSalons();
+
+            // On mes le client dans le salon par défault
+            salon = "Générale";
+            salons.get(salon).add(this);
 
             // Boucle de Lecture de message
             boolean run = true;
@@ -137,9 +145,7 @@ public class ClientHandler implements Runnable {
                                 }
 
                                 // On retire le client du précédent salon
-                                if (salon != null) {
-                                    salons.remove(salon);
-                                }
+                                salons.get(salon).remove(this);
 
                                 // Ajout du client dans le salon
                                 salon = valeur;
@@ -160,7 +166,7 @@ public class ClientHandler implements Runnable {
                 DBHandler.addMessage(message);
             }
         } catch (IOException e) {
-            logger.error("Une errreu est survenu : {}", e);
+            logger.error("Une errreur est survenu : {}", e);
         } finally {
             close();
         }
@@ -192,6 +198,7 @@ public class ClientHandler implements Runnable {
      */
     private void envoisMessageSalon(Message message) {
         for (ClientHandler client : salons.get(salon)) {
+            logger.info("Envois du message à {}", client.getClientName());
             client.envois(message);
         }
     }
@@ -208,8 +215,9 @@ public class ClientHandler implements Runnable {
 
         // On retire le client
         clientsThread.remove(this);
+        System.out.println(salon);
         salons.get(salon).remove(this);
-        broadcast(new Message(Type.ANNONCE, "Serveur", "❌ " + clientName + " a quitté le chat."));
+        broadcast(new Message(Type.ANNONCE, "Serveur", clientName + " a quitté le chat."));
         logger.info("{} à quitter le chat", clientName);
     }
 

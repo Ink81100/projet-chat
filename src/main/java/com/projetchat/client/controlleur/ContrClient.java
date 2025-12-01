@@ -10,11 +10,14 @@ import com.projetchat.client.modele.Client;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.VBox;
 
 /**
  * Le contrôleur de la fenêtre de connection.
@@ -44,13 +47,21 @@ public class ContrClient implements Initializable {
     @FXML
     private TextField textFieldEnvois;
 
-    /** La zone d'affichage des messages */
+    /** La zone d'affichage */
     @FXML
-    private TextArea textAreaConsole;
+    private ScrollPane messagesScroll;
+
+    /** La zone qui contient les bulles de messages */
+    @FXML
+    private VBox messagesVBox;
 
     /** La liste des salons */
     @FXML
     private ListView<String> salonList;
+
+    /** Bouton pour créer un salon */
+    @FXML
+    private Button createSalonButton;
 
     /**
      * Démarre la communication du client
@@ -88,8 +99,9 @@ public class ContrClient implements Initializable {
 
     /**
      * Envois une commande au serveur
+     * 
      * @param commande la commande
-     * @param valeur la valeur
+     * @param valeur   la valeur
      */
     private void envoyerCommande(String commande, String valeur) {
         Message message = new Message(Type.COMMAND, client.getNom(), commande + " " + valeur);
@@ -102,7 +114,9 @@ public class ContrClient implements Initializable {
      * @throws IOException Si une Erreur I/O se déclenche
      */
     private void initEcoute() throws IOException {
-        EcouteHandler ecouteHandler = new EcouteHandler(textAreaConsole, salonList, client.getSocket(), client.getKey());
+        EcouteHandler ecouteHandler = new EcouteHandler(client, messagesScroll, messagesVBox, salonList,
+                client.getSocket(),
+                client.getKey());
         ecouteThread = new Thread(ecouteHandler);
         ecouteThread.setDaemon(true);
         ecouteThread.setName("Ecoute");
@@ -127,6 +141,21 @@ public class ContrClient implements Initializable {
 
         // On eneleve le texte entré
         textFieldEnvois.setText("");
+    }
+
+    @FXML
+    private void creerSalon() {
+        // Boîte de dialogue
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Nouveau salon");
+        dialog.setHeaderText("Créer un salon");
+        dialog.setContentText("Nom du salon :");
+
+        dialog.showAndWait().ifPresent(nomSalon -> {
+            System.out.println("Salon choisi: " + nomSalon);
+            Message message = new Message(Type.COMMAND, client.getNom(), "join " + nomSalon);
+            client.envois(message);
+        });
     }
 
     /**
