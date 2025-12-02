@@ -1,0 +1,59 @@
+@startuml
+autonumber
+
+title Échange Diffie-Hellman signé
+
+participant Client
+participant Serveur
+
+== Génération des clés ==
+
+Client -> Client: Génère paire DH (4096 bits)
+Client -> Client: Génère paire RSA (2048 bits)
+
+Serveur -> Serveur: Génère paire DH (4096 bits)
+Serveur -> Serveur: Génère paire RSA (2048 bits)
+
+== Envoi initial du serveur ==
+
+Serveur -> Serveur: Signature = Sign(PubKeyDH_S, RSA_priv_S)
+Serveur -> Client: Base64(PubKeyDH_S)
+Serveur -> Client: Base64(Signature_S)
+Serveur -> Client: Base64(PubKeyRSA_S)
+
+== Vérification côté client ==
+
+Client -> Client: Vérifie Signature_S avec PubKeyRSA_S
+Client -> Client: Si invalide → ERREUR
+
+== Envoi des clés du client ==
+
+Client -> Client: Signature_C = Sign(PubKeyDH_C, RSA_priv_C)
+Client -> Serveur: Base64(PubKeyDH_C)
+Client -> Serveur: Base64(Signature_C)
+Client -> Serveur: Base64(PubKeyRSA_C)
+
+== Vérification côté serveur ==
+
+Serveur -> Serveur: Vérifie Signature_C avec PubKeyRSA_C
+Serveur -> Serveur: Si invalide → ERREUR
+
+== Calcul du secret partagé ==
+
+Client -> Client: S = DH(Priv_C, PubKeyDH_S)
+Serveur -> Serveur: S = DH(Priv_S, PubKeyDH_C)
+
+note over Client,Serveur
+Les deux obtiennent exactement le même secret Diffie-Hellman
+end note
+
+== Dérivation de la clé AES ==
+
+Client -> Client: AES = SecretKeySpec(S, 0, 32)
+Serveur -> Serveur: AES = SecretKeySpec(S, 0, 32)
+
+note over Client,Serveur
+Fin de l'échange — Clé AES-256 commune établie
+end note
+
+@enduml

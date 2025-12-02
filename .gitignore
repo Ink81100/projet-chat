@@ -9,3 +9,6 @@ dependency-reduced-pom.xml
 
 #Base de données
 messages.db
+
+#PlantUML
+*.svg
