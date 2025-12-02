@@ -1,19 +1,14 @@
 package com.projetchat.serveur.modele;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.projetchat.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.projetchat.Message;
+import java.io.IOException;
+import java.sql.*;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Permet de gérer les messages dans une base de données
@@ -25,7 +20,9 @@ public final class DBHandler {
     /** Le gestionnaire de logs */
     private static final Logger logger = LogManager.getLogger(DBHandler.class);
 
-    /* Le lien vers la base de données */
+    /**
+     * Le lien vers la base de données
+     */
     private static String url = "jdbc:sqlite:messages.db";
 
     /**
@@ -108,7 +105,6 @@ public final class DBHandler {
 
     /**
      * Ajoute un message à la base de données
-     * @param utilisateur l'auteur du message
      * @param message le message
      */
     public static void addMessage(Message message) {

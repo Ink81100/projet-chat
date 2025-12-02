@@ -1,14 +1,13 @@
 package com.projetchat.serveur.modele;
 
+import com.projetchat.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.projetchat.Message;
 
 /**
  * Le serveur de chat.
@@ -22,14 +21,16 @@ public class Serveur implements Runnable {
     private final int port;
 
     /**
-     * Instencie un nouveau serveur
+     * Instencie un serveur
+     * @param port le port d'écoute du serveur
      */
     public Serveur(int port) {
         this.port = port;
     }
 
     /**
-     * Méthode qui démarre le serveur
+     * Démarre le serveur.
+     * @throws IOException Si une erreur entrée/sortie arrive.
      */
     private void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -55,8 +56,9 @@ public class Serveur implements Runnable {
         }
     }
 
-    /** 
+    /**
      * Envois un message à tous les utilisateurs
+     * @param message Le message à envoyer
      */
     public void broadcast(Message message) {
         ClientHandler.broadcast(message);

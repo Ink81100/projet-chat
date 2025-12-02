@@ -1,41 +1,23 @@
 package com.projetchat.serveur.modele;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.projetchat.CryptoHandler;
+import com.projetchat.Message;
+import com.projetchat.Message.Type;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyAgreement;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.projetchat.CryptoHandler;
-import com.projetchat.Message;
-import com.projetchat.Message.Type;
+import java.util.*;
 
 /**
  * Classe permettant de gérer le client.
@@ -87,6 +69,11 @@ public class ClientHandler implements Runnable {
         clientsThread.add(this);
     }
 
+    /**
+     * Renvis le nom du client
+     *
+     * @return le nom du client
+     */
     public String getClientName() {
         return clientName;
     }
@@ -172,6 +159,24 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * <p>
+     * Envoie l'ensemble des salons aux clients.
+     * </p>
+     * <p>
+     * Ils seront transmis sous la forme d'un {@link com.projetchat.Message message}
+     * de type {@link com.projetchat.Message.Type#LISTSALON LISTSALON} où chaque salon 
+     * est séparé par des points-virgules.
+     * </p>
+     * <h4>Exemple</h4>
+     * 2 salons :
+     * <ol>
+     *     <li>Salon1</li>
+     *     <li>Salon2</li>
+     * </ol>
+     * <h4>Résultat</h4>
+     * {@code Salon1;Salon2}
+     */
     private void envoisSalons() {
         StringBuilder strSalons = new StringBuilder();
 
@@ -187,8 +192,8 @@ public class ClientHandler implements Runnable {
         // Création du message
         Message message = new Message(Type.LISTSALON, "Serveur", strSalons.toString());
 
-        // Transmissions de la liste
-        envois(message);
+        // Transmissions de la liste à tous les utilisateurs
+        broadcast(message);
     }
 
     /**

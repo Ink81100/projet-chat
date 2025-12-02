@@ -5,6 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * La vue du serveur
+ */
 public class ServeurViewer extends Application {
     @Override
     public void start(Stage stage) throws Exception {
@@ -21,7 +24,7 @@ public class ServeurViewer extends Application {
 
     /**
      * Lance l'application java
-     * @param args
+     * @param args Les arguments de lancement
      */
     public static void main(String[] args) {
         launch(args);

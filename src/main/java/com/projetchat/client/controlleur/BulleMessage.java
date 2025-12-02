@@ -1,7 +1,6 @@
 package com.projetchat.client.controlleur;
 
 import com.projetchat.Message;
-
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -10,6 +9,12 @@ import javafx.scene.layout.VBox;
  * Classe perméteznt de représenter un message sour la forme d'une bulle
  */
 public class BulleMessage extends VBox {
+    /**
+     * Créer un objet qui est la représentation graphique d'un {@link com.projetchat.Message message}
+     *
+     * @param message Le message
+     * @param vous    {@code true} si c'est un de vos message, sinon {@code false}
+     */
     public BulleMessage(Message message, boolean vous) {
         // Auteur
         Label auteurLabel = new Label(message.getUtilisateur());
@@ -44,6 +49,5 @@ public class BulleMessage extends VBox {
         this.setMaxWidth(Region.USE_PREF_SIZE);
         this.setMinWidth(Region.USE_PREF_SIZE);
         this.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
     }
 }

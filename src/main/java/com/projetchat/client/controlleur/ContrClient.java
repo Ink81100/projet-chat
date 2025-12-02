@@ -1,23 +1,16 @@
 package com.projetchat.client.controlleur;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import com.projetchat.Message;
 import com.projetchat.Message.Type;
 import com.projetchat.client.modele.Client;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Le contrôleur de la fenêtre de connection.
@@ -143,6 +136,9 @@ public class ContrClient implements Initializable {
         textFieldEnvois.setText("");
     }
 
+    /**
+     * Envois une demande de création de salon
+     */
     @FXML
     private void creerSalon() {
         // Boîte de dialogue

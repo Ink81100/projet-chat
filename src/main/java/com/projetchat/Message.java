@@ -1,7 +1,5 @@
 package com.projetchat;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,12 +7,24 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import java.time.LocalDateTime;
+
 /**
  * Classe représentant un message
  */
 public class Message {
-    public static enum Type {
-        ANNONCE, COMMAND, LISTUSER, LISTSALON, MESSAGE
+        /**
+     * Instancie un Objet message.
+     *
+     * @param type        le type du message
+     * @param utilisateur L'auteur du message.
+     * @param contenu     Le contenu du message.
+     */
+    public Message(Type type, String utilisateur, String contenu) {
+        this.type = type;
+        this.utilisateur = utilisateur;
+        this.contenu = contenu;
+        this.date = LocalDateTime.now();
     };
 
     /** Le type du message */
@@ -27,21 +37,8 @@ public class Message {
     private final LocalDateTime date;
 
     /**
-     * Instancie un Objet message.
-     * 
-     * @param utilisateur L'auteur du message.
-     * @param contenu     Le contenu du message.
-     */
-    public Message(Type type, String utilisateur, String contenu) {
-        this.type = type;
-        this.utilisateur = utilisateur;
-        this.contenu = contenu;
-        this.date = LocalDateTime.now();
-    }
-
-    /**
      * Constructeur du message pour Jackson
-     * 
+     * @param type        le type du message
      * @param utilisateur L'auteur du message.
      * @param contenu     Le contenu du message.
      * @param date        La date du message
@@ -56,6 +53,32 @@ public class Message {
         this.utilisateur = utilisateur;
         this.contenu = contenu;
         this.date = date;
+    }
+
+/**
+     * Les différent type de messages possibles
+     */
+    public static enum Type {
+        /**
+         * Une annonce, Exemple: un client à rejoint le serveur
+         */
+        ANNONCE,
+        /**
+         * Une commande, Exemple: rejoindre un salon
+         */
+        COMMAND,
+        /**
+         * La liste des utilisateur
+         */
+        LISTUSER,
+        /**
+         * La liste des salons disponibles
+         */
+        LISTSALON,
+        /**
+         * Un simple message
+         */
+        MESSAGE
     }
 
     /**

@@ -1,48 +1,62 @@
 package com.projetchat.client.controlleur;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import javafx.scene.control.Label;
-import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-
 import com.projetchat.CryptoHandler;
 import com.projetchat.Message;
 import com.projetchat.client.modele.Client;
-
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 /**
  * Gére l'écoute de message et l'affiche
  */
 public class EcouteHandler implements Runnable {
+    /**
+     * L'entrée
+     */
     private final BufferedReader input;
-    private SecretKey key;
+    /** La zone d'affichage des messages */
     private final ScrollPane messagesScroll;
+    /** La zone d'jout des messages */
     private final VBox messagesVBox;
+    /** La liste des salons */
     private final ListView<String> listView;
+    /** Le client */
     private final Client client;
+    /** La clef AES */
+    private SecretKey key;
 
     /**
-     * Initialise le thread
      * 
+     * Initialise le thread
+     *
+     * @param client Le client
+     * @param messagesScroll La zone d'affichage des messages
+     * @param messagesVBox La zone d'ajout des messages
+     * @param listView la liste pour afficher les salons
      * @param socket le socket de connexion au serveur
-     * @throws IOException
+     * @param key la clef secrète
+     * @throws IOException si une erreur d'entrée/sortie survient lors de l'initialisation du thread
      */
+
+    
     public EcouteHandler(Client client, ScrollPane messagesScroll, VBox messagesVBox, ListView<String> listView,
             Socket socket,
             SecretKey key)

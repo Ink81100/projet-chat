@@ -1,12 +1,8 @@
 package com.projetchat.serveur.controleur;
 
-import java.io.Serializable;
-
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.Core;
-import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.Layout;
-import org.apache.logging.log4j.core.LogEvent;
+import javafx.application.Platform;
+import javafx.scene.control.TextArea;
+import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -15,11 +11,12 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import javafx.application.Platform;
-import javafx.scene.control.TextArea;
+import java.io.Serializable;
 
+/**
+ * Classe permetant d'écrire l'affichage de la console dans une textArea
+ */
 @Plugin(name = "TextAreaAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
-/** Classe permetant d'écrire l'affichage de la console dans une textArea */
 public class TextAreaAppender extends AbstractAppender {
     /** La zone de texte */
     private static TextArea textArea;
@@ -38,6 +35,11 @@ public class TextAreaAppender extends AbstractAppender {
         super(name, filter, layout, ignoreExceptions, properties);
     }
 
+    /**
+     * Met la zone de texte
+     *
+     * @param textArea La zone de texte
+     */
     public static void setTextArea(TextArea textArea) {
         TextAreaAppender.textArea = textArea;
     }
@@ -61,7 +63,18 @@ public class TextAreaAppender extends AbstractAppender {
         });
     }
 
-    // Factory method requise par Log4j pour instancier le plugin via le XML
+    /**
+     * Factory method pour créer une instance de {@link TextAreaAppender}.
+     * Cette méthode est utilisée par le système de plugins de Log4j pour instancier
+     * un appender configuré via XML ou programme.
+     *
+     * @param name             le nom de l'appender (doit être non nul)
+     * @param layout           le layout utilisé pour formater les messages de log. Si null, 
+     *                         un {@link PatternLayout} par défaut sera utilisé.
+     * @param filter           le filtre appliqué à cet appender. Peut être null.
+     * @param ignoreExceptions indique si les exceptions doivent être ignorées (true) ou propagées (false)
+     * @return une instance de {@link TextAreaAppender}, ou null si le nom est null
+     */
     @PluginFactory
     public static TextAreaAppender createAppender(
             @PluginAttribute("name") String name,

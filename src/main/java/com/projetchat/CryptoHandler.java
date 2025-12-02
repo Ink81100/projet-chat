@@ -1,32 +1,23 @@
 package com.projetchat;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
+import java.security.*;
 
 /**
  * Clase permettant de gérer le cryptage/décryptage/signature de texte
  */
 public final class CryptoHandler {
     /**
-     * Permet de crypté un message via une clef secrète
-     * 
-     * @param message le message à crypté
-     * @param key     la clef secrète
+     * Permet de crypter un message via une clé secrète.
+     *
+     * @param message le message à crypter
+     * @param key     la clé secrète
      * @return les octets du message crypté
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws InvalidKeyException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
+     * @throws NoSuchAlgorithmException si l'algorithme de cryptage n'est pas disponible
+     * @throws NoSuchPaddingException   si le schéma de remplissage n'est pas disponible
+     * @throws InvalidKeyException      si la clé est invalide
+     * @throws IllegalBlockSizeException si le bloc de données est de taille incorrecte
+     * @throws BadPaddingException      si le remplissage est incorrect
      */
     public static final byte[] crypte(String message, SecretKey key) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
@@ -45,11 +36,11 @@ public final class CryptoHandler {
      * @param bytes le message crypté.
      * @param key la clef secrète.
      * @return Le message décrypté.
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws InvalidKeyException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
+     * @throws NoSuchAlgorithmException si l'algorithme de cryptage n'est pas disponible
+     * @throws NoSuchPaddingException   si le schéma de remplissage n'est pas disponible
+     * @throws InvalidKeyException      si la clé est invalide
+     * @throws IllegalBlockSizeException si le bloc de données est de taille incorrecte
+     * @throws BadPaddingException      si le remplissage est incorrect
      */
     public static final String decrypte(byte[] bytes, SecretKey key) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
@@ -69,9 +60,9 @@ public final class CryptoHandler {
      * @param signature la signature des données
      * @param publicKey la clef publique utiliser (Une clef RSA)
      * @return {@code true} si la signature est bonne, sinon {@code false}
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException      si la clé fournie est invalide
+     * @throws SignatureException       si une erreur survient lors de la signature ou la vérification
+     * @throws NoSuchAlgorithmException si l'algorithme de signature n'est pas disponible
      */
     public static final boolean verifSign(byte[] data, byte[] signature, PublicKey publicKey) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
         Signature verifier = Signature.getInstance("SHA256withRSA");
