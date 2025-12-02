@@ -1,362 +1,219 @@
 @startuml
+
+top to bottom direction
 skinparam classAttributeIconSize 0
-package "com.projetchat" {
-  class Message {
-    - type : Type
-    - utilisateur : String
-    - contenu : String
-    - date : LocalDateTime
-    ~ Message(Type type, String utilisateur, String contenu) : public
-  }
-  enum Type {
-    ~ mapper : ObjectMapper
-    ~ message : Message
-    ~ message : return
-    ~ mapper : ObjectMapper
-    ~ json : String
-    ~ json : return
-    ~ type : return
-    ~ utilisateur : return
-    ~ contenu : return
-    ~ date : return
-    ~ message : Message
-    ~ type : boolean
-    ~ utilisateur : boolean
-    ~ contenu : boolean
-    ~ date : boolean
-    ~ false : return
-    + fromJson(String json) : Message
-    + toJson() : String
-    + getType() : Type
-    + getUtilisateur() : String
-    + getContenu() : String
-    + getDate() : LocalDateTime
-    + equals(Object obj) : boolean
-    + toString() : String
-  }
-  class CryptoHandler {
-    ~ cipher : Cipher
-    ~ bytes : byte[]
-    ~ bytes : return
-    ~ cipher : Cipher
-    ~ message : byte[]
-    ~ verifier : Signature
-    + crypte(String message, SecretKey key) : byte[]
-    + decrypte(byte bytes, SecretKey key) : String
-    + verifSign(byte data, byte signature, PublicKey publicKey) : boolean
-  }
-}
-package "com.projetchat.serveur" {
-  class Main {
-    + main(String args) : void
-  }
-}
+
 package "com.projetchat.client.controlleur" {
-  class ContrClient {
-    - client : Client
-    - ecouteThread : Thread
-    - nomField : TextField
-    - ipField : TextField
-    - portSpinner : Spinner<Integer>
-    - textFieldEnvois : TextField
-    - messagesScroll : ScrollPane
-    - messagesVBox : VBox
-    - salonList : ListView<String>
-    - createSalonButton : Button
-    ~ nom : String
-    ~ ip : String
-    ~ port : int
-    ~ message : Message
-    ~ ecouteHandler : EcouteHandler
-    ~ message : Message
-    ~ dialog : TextInputDialog
-    ~ message : Message
-    - startClient() : void
-    - envoyerCommande(String commande, String valeur) : void
-    - initEcoute() : void
-    - envoisServeur() : void
-    - creerSalon() : void
-    - bye() : void
-    + initialize(URL arg0, ResourceBundle arg1) : void
-  }
   class BulleMessage {
-    ~ auteurLabel : Label
-    ~ contenuLabel : Label
-    ~ dateLabel : Label
-    ~ BulleMessage(Message message, boolean vous) : public
   }
+  
+  class ContrClient {
+    - client: Client
+    - ecouteThread: Thread
+    - nomField: TextField
+    - ipField: TextField
+    - portSpinner: Spinner<Integer>
+    - textFieldEnvois: TextField
+    - messagesScroll: ScrollPane
+    - messagesVBox: VBox
+    - salonList: ListView<String>
+    - createSalonButton: Button
+    ---
+    - startClient(): void
+    - envoyerCommande(String, String): void
+    - initEcoute(): void
+    - envoisServeur(): void
+    - creerSalon(): void
+    - bye(): void
+    + initialize(URL, ResourceBundle): void
+  }
+  
   class EcouteHandler {
-    - input : BufferedReader
-    - messagesScroll : ScrollPane
-    - messagesVBox : VBox
-    - listView : ListView<String>
-    - client : Client
-    - key : SecretKey
-    ~ reponse : String
-    ~ json : String
-    ~ message : Message
-    ~ annonce : Label
-    ~ vous : boolean
-    ~ bulleMessage : BulleMessage
-    ~ ligne : HBox
-    ~ salons : String[]
-    ~ decode : byte[]
-    ~ message : String
-    ~ message : return
-    ~ EcouteHandler(Client client, ScrollPane messagesScroll, VBox messagesVBox, ListView listView, Socket socket, SecretKey key) : public
-    # updateItem(String item, boolean empty) : void
-    + run() : void
-    - recois(String message64) : String
+    - input: BufferedReader
+    - messagesScroll: ScrollPane
+    - messagesVBox: VBox
+    - listView: ListView<String>
+    - client: Client
+    - key: SecretKey
+    ---
+    + run(): void
+    - recois(String): String
   }
 }
-package "com.projetchat.client.vue" {
-  class ClientViewer {
-    ~ loader : FXMLLoader
-    ~ scene : Scene
-    + start(Stage stage) : void
-    + main(String args) : void
-  }
-}
+
 package "com.projetchat.client.modele" {
   class Client {
-    - nom : String
-    - adresse : String
-    - port : int
-    - key : SecretKey
-    - socket : Socket
-    - output : PrintWriter
-    - input : BufferedReader
-    ~ keyPairGenerator : KeyPairGenerator
-    ~ keyPairClient : KeyPair
-    ~ keyPairGeneratorSign : KeyPairGenerator
-    ~ keyPairClientSign : KeyPair
-    ~ signer : Signature
-    ~ bytesPubKeyServeur : byte[]
-    ~ bytesSignatureServeur : byte[]
-    ~ bytesPubKeyServeurRSA : byte[]
-    ~ pubKeyServeurRSA : PublicKey
-    ~ verified : boolean
-    ~ pubKeyClientBytes : byte[]
-    ~ signatureClient : byte[]
-    ~ pubKeyClient64 : String
-    ~ signatureClient64 : String
-    ~ pubKeyClientRSA64 : String
-    ~ publicKeyServeur : PublicKey
-    ~ keyAgreementClient : KeyAgreement
-    ~ secretCommun : byte[]
-    ~ cipherText : String
-    ~ json : String
-    ~ cipherText : String
-    ~ nom : return
-    ~ key : return
-    ~ socket : return
-    ~ Client(String nom, String adresse, int port) : public
-    + start() : void
-    + close() : void
-    - diffie() : void
-    + envois(String message) : void
-    + envois(Message message) : void
-    + getNom() : String
-    + getKey() : SecretKey
-    + getSocket() : Socket
+    - nom: String
+    - adresse: String
+    - port: int
+    - key: SecretKey
+    - socket: Socket
+    - output: PrintWriter
+    - input: BufferedReader
+    ---
+    + Client(String, String, int)
+    + start(): void
+    + close(): void
+    - diffie(): void
+    + envois(String): void
+    + envois(Message): void
+    + getNom(): String
+    + getKey(): SecretKey
+    + getSocket(): Socket
   }
 }
+
+package "com.projetchat.client.vue" {
+  class ClientViewer {
+    + start(Stage): void
+    + main(String[]): void
+  }
+}
+
+package "com.projetchat.client" {
+  class Main {
+    + main(String[]): void
+  }
+}
+
 package "com.projetchat.serveur.controleur" {
-  class TextAreaAppender {
-    - textArea : TextArea
-    ~ message : String
-    ~ null : return
-    ~ TextAreaAppender(String name, Filter filter, Layout layout, boolean ignoreExceptions, Property properties) : public
-    + setTextArea(TextArea textArea) : void
-    + append(LogEvent event) : void
-  }
   class ContrServeur {
-    - logger : Logger
-    - serveur : Serveur
-    - spinnerPort : Spinner<Integer>
-    - startButton : Button
-    - sendButton : Button
-    - textAreaConsole : TextArea
-    - textFieldEnvois : TextField
-    ~ msg : String
-    ~ port : int
-    ~ thread : Thread
-    + initialize(URL arg0, ResourceBundle arg1) : void
-    - envoisServeur() : void
-    - startServer() : void
+    - logger: Logger
+    - serveur: Serveur
+    - spinnerPort: Spinner<Integer>
+    - startButton: Button
+    - sendButton: Button
+    - textAreaConsole: TextArea
+    - textFieldEnvois: TextField
+    ---
+    + initialize(URL, ResourceBundle): void
+    - envoisServeur(): void
+    - startServer(): void
+  }
+  
+  class TextAreaAppender {
+    - textArea: TextArea
+    ---
+    + TextAreaAppender(String, Filter, Layout<Serializable>, boolean, Property[])
+    + setTextArea(TextArea): void
+    + append(LogEvent): void
+    + createAppender(String, Layout<Serializable>, Filter, boolean): TextAreaAppender? 
   }
 }
+
+package "com.projetchat.serveur.modele" {
+  class ClientHandler {
+    - logger: Logger
+    - salons: Map<String, Set<ClientHandler>>
+    - socket: Socket
+    - key: SecretKey
+    - input: BufferedReader
+    - output: PrintWriter
+    - clientsThread: Set<ClientHandler>
+    - clientName: String
+    - salon: String
+    ---
+    + ClientHandler(Socket)
+    + run(): void
+    + getClientName(): String
+    - envoisMessageSalon(Message): void
+    - envoisSalons(): void
+    - close(): void
+    - diffie(): void
+    - envois(Message): void
+    - recois(String): String
+    # broadcast(Message): void
+  }
+  
+  class DBHandler {
+    - logger: Logger
+    - url: String
+    ---
+    + creerDB(): void
+    + isInit(): boolean
+    + addMessage(Message): void
+    + size(): int
+    + setUrl(String): void
+  }
+  
+  class Serveur {
+    - logger: Logger
+    - port: int
+    ---
+    + Serveur(int)
+    + broadcast(Message): void
+    + run(): void
+    - start(): void
+  }
+}
+
 package "com.projetchat.serveur.vue" {
   class ServeurViewer {
-    ~ loader : FXMLLoader
-    ~ scene : Scene
-    + start(Stage stage) : void
-    + main(String args) : void
+    + start(Stage): void
+    + main(String[]): void
   }
 }
-package "com.projetchat.serveur.modele" {
-  class DBHandler {
-    - logger : Logger
-    - url : String
-    ~ connection : Connection
-    ~ dropStatement : PreparedStatement
-    ~ messages : EXISTS
-    ~ iniStatement : PreparedStatement
-    ~ connection : Connection
-    ~ tableStatement : PreparedStatement
-    ~ type : WHERE
-    ~ name : AND
-    ~ tableResultSet : ResultSet
-    ~ false : return
-    ~ collones : String>
-    ~ colStatement : PreparedStatement
-    ~ colResultSet : ResultSet
-    ~ colNom : String
-    ~ colType : String
-    ~ false : return
-    ~ false : return
-    ~ connection : Connection
-    ~ insertStatement : PreparedStatement
-    ~ connection : Connection
-    ~ countStatement : PreparedStatement
-    ~ messages : FROM
-    ~ resultSet : ResultSet
-    + creerDB() : void
-    + isInit() : boolean
-    + addMessage(Message message) : void
-    + size() : int
-    + setUrl(String url) : void
-  }
-  class ClientHandler {
-    - logger : Logger
-    ~ salons : Set<ClientHandler>>
-    - socket : Socket
-    - key : SecretKey
-    - input : BufferedReader
-    - output : PrintWriter
-    - clientsThread : Set<ClientHandler>
-    - clientName : String
-    - salon : String
-    ~ clientName : return
-    ~ run : boolean
-    ~ json : String
-    ~ message : Message
-    ~ commande : String
-    ~ valeur : String
-    ~ strSalons : StringBuilder
-    ~ message : Message
-    ~ keyPairGenerator : KeyPairGenerator
-    ~ keyPairServeur : KeyPair
-    ~ keyPairGeneratorSign : KeyPairGenerator
-    ~ keyPairServeurSign : KeyPair
-    ~ signer : Signature
-    ~ signatureServeur64 : String
-    ~ pubKeyServ64 : String
-    ~ pubKeyServRSA64 : String
-    ~ bytePubKeyClient : byte[]
-    ~ byteSignatureClient : byte[]
-    ~ bytesPubKeyClientRSA : byte[]
-    ~ pubKeyClientRSA : PublicKey
-    ~ verifier : Signature
-    ~ verified : boolean
-    ~ pubKeyClient : PublicKey
-    ~ keyAgreementServeur : KeyAgreement
-    ~ secretcommun : byte[]
-    ~ json : String
-    ~ cipherText : String
-    ~ decode : byte[]
-    ~ message : String
-    ~ message : return
-    ~ ClientHandler(Socket socket) : public
-    + getClientName() : String
-    + run() : void
-    - envoisSalons() : void
-    - envoisMessageSalon(Message message) : void
-    - close() : void
-    - diffie() : void
-    - envois(Message message) : void
-    - recois(String message64) : String
-    # broadcast(Message message) : void
-  }
-  class Serveur {
-    - logger : Logger
-    - port : int
-    ~ serverSocket : ServerSocket
-    ~ socket : Socket
-    ~ client : ClientHandler
-    ~ thread : Thread
-    ~ Serveur(int port) : public
-    - start() : void
-    + broadcast(Message message) : void
-    + run() : void
+
+package "com.projetchat.serveur" {
+  class Main {
+    + main(String[]): void
   }
 }
-package "default" {
-  class TestMessage {
-    ~ message : Message
-    ~ json : String
-    ~ messageJson : Message
-    ~ testMessageToJsonToMessage() : void
-    ~ testType() : void
+
+package "com.projetchat" {
+  class Message {
+    - type: Type
+    - utilisateur: String
+    - contenu: String
+    - date: LocalDateTime
+    ---
+    + Message(Type, String, String)
+    + Message(Type, String, String, LocalDateTime)
+    + getType(): Type
+    + getUtilisateur(): String
+    + getContenu(): String
+    + getDate(): LocalDateTime
+    + fromJson(String): Message
+    + toJson(): String
+    + equals(Object): boolean
+    + toString(): String
   }
-  class TestCryptage {
-    ~ message : String
-    ~ keyGenerator : KeyGenerator
-    ~ key : SecretKey
-    ~ messageCrypte : byte[]
-    ~ message : String
-    ~ keyGenerator : KeyGenerator
-    ~ key : SecretKey
-    ~ messageCrypte : byte[]
-    ~ messageDecrypte : String
-    ~ keyPairGenerator : KeyPairGenerator
-    ~ keyPair : KeyPair
-    ~ message : String
-    ~ signer : Signature
-    ~ keyPairGenerator : KeyPairGenerator
-    ~ keyPair : KeyPair
-    ~ message : String
-    ~ signer : Signature
-    ~ testCryptage() : void
-    ~ testDeCryptage() : void
-    ~ testSignature() : void
-    ~ testMauvaiseSignature() : void
+  
+  class CryptoHandler {
+    + crypte(String, SecretKey): byte[]
+    + decrypte(byte[], SecretKey): String
+    + verifSign(byte[], byte[], PublicKey): boolean
   }
-  class TestDB {
-    ~ tempDBTestPath : Path
-    ~ db : File
-    ~ message : Message
-    ~ initDB() : void
-    ~ creerDB() : void
-    ~ testCreationDB() : void
-    ~ ajouteMessage() : void
+  
+  enum Type {
+    ANNONCE
+    COMMAND
+    LISTUSER
+    LISTSALON
+    MESSAGE
+    ---
+    + values(): Type[]
+    + valueOf(String): Type
   }
 }
-Message --> Type : type
-Type --> Message : message
-Type --> Message : message
-ContrClient --> Client : client
-ContrClient --> Message : message
-ContrClient --> EcouteHandler : ecouteHandler
-ContrClient --> Message : message
-ContrClient --> Message : message
-EcouteHandler --> Client : client
-EcouteHandler --> Message : message
-EcouteHandler --> BulleMessage : bulleMessage
-ContrServeur --> Serveur : serveur
-ClientHandler --> Message : message
-ClientHandler --> Message : message
-Serveur --> ClientHandler : client
-TestMessage --> Message : message
-TestMessage --> Message : messageJson
-TestDB --> Message : message
-Message ..> Type : utilise
-Type ..> Message : utilise
-Type ..> Type : utilise
-BulleMessage ..> Message : utilise
-EcouteHandler ..> Client : utilise
-Client ..> Message : utilise
-DBHandler ..> Message : utilise
-ClientHandler ..> Message : utilise
-Serveur ..> Message : utilise
+
+' --- Relationships ---
+ClientHandler     -[#595959,dashed]->  Message          : "«create»"
+ContrClient       -[#595959,dashed]->  Client           : "«create»"
+ContrClient      "1" *-[#595959,plain]-> "client\n1" Client           
+ContrClient       -[#595959,dashed]->  EcouteHandler    : "«create»"
+ContrClient       -[#595959,dashed]->  Message          : "«create»"
+ContrServeur      -[#595959,dashed]->  Message          : "«create»"
+ContrServeur      -[#595959,dashed]->  Serveur          : "«create»"
+ContrServeur     "1" *-[#595959,plain]-> "serveur\n1" Serveur          
+EcouteHandler     -[#595959,dashed]->  BulleMessage     : "«create»"
+EcouteHandler    "1" *-[#595959,plain]-> "client\n1" Client           
+Message          "1" *-[#595959,plain]-> "type\n1" Type             
+Serveur           -[#595959,dashed]->  ClientHandler    : "«create»"
+Type              +-[#820000,plain]-  Message          
+Client            -[#595959,dashed]->  CryptoHandler    : "uses"
+ClientHandler     -[#595959,dashed]->  CryptoHandler    : "uses"
+EcouteHandler     -[#595959,dashed]->  CryptoHandler    : "uses"
+Serveur           -[#595959,dashed]->  DBHandler        : "uses"
+
 @enduml
