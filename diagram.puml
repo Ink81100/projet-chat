@@ -1,0 +1,188 @@
+@startuml
+title com.projetchat - Diagramme de classe
+
+package "com.projetchat" {
+  class CryptoHandler <<final>> {
+    +static byte[] crypte(String message, SecretKey key)
+    +static String decrypte(byte[] bytes, SecretKey key)
+    +static boolean verifSign(byte[] data, byte[] signature, PublicKey publicKey)
+  }
+
+  class Message {
+    -Type type
+    -String utilisateur
+    -String contenu
+    -LocalDateTime date
+    +Message(Type type, String utilisateur, String contenu)
+    +Message(Type type, String utilisateur, String contenu, LocalDateTime date)
+    +static Message fromJson(String json)
+    +String toJson()
+    +Type getType()
+    +String getUtilisateur()
+    +String getContenu()
+    +LocalDateTime getDate()
+    +boolean equals(Object)
+    +String toString()
+  }
+}
+
+package "com.projetchat.client" {
+  class Main <<Application>>
+
+  package controlleur {
+    class ContrClient {
+      -Client client
+      -Thread ecouteThread
+      +void startClient()
+      -void envoyerCommande(String commande, String valeur)
+      -void initEcoute()
+      +void envoisServeur()
+      +void creerSalon()
+      -void bye()
+      +void initialize(URL, ResourceBundle)
+    }
+
+    class EcouteHandler <<Runnable>> {
+      -BufferedReader input
+      -ScrollPane messagesScroll
+      -VBox messagesVBox
+      -ListView<String> listView
+      -Client client
+      -SecretKey key
+      +EcouteHandler(Client, ScrollPane, VBox, ListView<String>, Socket, SecretKey)
+      +void run()
+      -String recois(String message64)
+    }
+
+    class BulleMessage <<VBox>> {
+      +BulleMessage(Message message, boolean vous)
+    }
+  }
+
+  package modele {
+    class Client {
+      -String nom
+      -String adresse
+      -int port
+      -SecretKey key
+      -Socket socket
+      -PrintWriter output
+      -BufferedReader input
+      +Client(String nom, String adresse, int port)
+      +void start() throws IOException
+      +void close()
+      -void diffie()
+      +void envois(String message)
+      +void envois(Message message)
+      +String getNom()
+      +SecretKey getKey()
+      +Socket getSocket()
+    }
+  }
+
+  package vue {
+    class ClientViewer <<Application>> {
+      +void start(Stage)
+      +static void main(String[] args)
+    }
+  }
+}
+
+package "com.projetchat.serveur" {
+  class Main <<Application>>
+
+  package controleur {
+    class ContrServeur <<Control, Initializable>> {
+      -Serveur serveur
+      -Spinner<Integer> spinnerPort
+      -Button startButton
+      -Button sendButton
+      -TextArea textAreaConsole
+      -TextField textFieldEnvois
+      +void initialize(URL, ResourceBundle)
+      +void envoisServeur()
+      +void startServer()
+    }
+
+    class TextAreaAppender <<AbstractAppender>> {
+      -static TextArea textArea
+      +TextAreaAppender(String name, Filter filter, Layout layout, boolean ignoreExceptions, Property[] properties)
+      +static void setTextArea(TextArea textArea)
+      +void append(LogEvent event)
+      +static TextAreaAppender createAppender(String name, Layout layout, Filter filter, boolean ignoreExceptions)
+    }
+  }
+
+  package modele {
+    class Serveur <<Runnable>> {
+      -int port
+      +Serveur(int port)
+      -void start() throws IOException
+      +void broadcast(Message message)
+      +void run()
+    }
+
+    class ClientHandler <<Runnable>> {
+      -static Map<String, Set<ClientHandler>> salons
+      -static Set<ClientHandler> clientsThread
+      -Socket socket
+      -SecretKey key
+      -BufferedReader input
+      -PrintWriter output
+      -String clientName
+      -String salon
+      +ClientHandler(Socket socket) throws IOException
+      +String getClientName()
+      +void run()
+      -void envoisSalons()
+      -void envoisMessageSalon(Message message)
+      -void close()
+      -void diffie()
+      -void envois(Message message)
+      -String recois(String message64)
+      +static void broadcast(Message message)
+    }
+
+    class DBHandler <<final>> {
+      -static String url
+      +static void creerDB() throws SQLException, IOException
+      +static boolean isInit()
+      +static void addMessage(Message message)
+      +static int size()
+      +static void setUrl(String url)
+    }
+  }
+
+  package vue {
+    class ServeurViewer <<Application>> {
+      +void start(Stage)
+      +static void main(String[] args)
+    }
+  }
+}
+
+ContrClient --> Client : « crée/utilise »
+ContrClient ..> EcouteHandler : « démarre »
+EcouteHandler --> Client : « lit depuis »
+EcouteHandler --> CryptoHandler : « utilise pour le chiffrement »
+
+Client --> CryptoHandler : « chiffre/déchiffre »
+Client --> Message : « crée »
+
+ClientHandler --> Message : « envoie/reçoit »
+ClientHandler --> DBHandler : « stocke dans la BD »
+
+Serveur "1" o-- "0..*" ClientHandler : « gère »
+Serveur --> ClientHandler : « crée »
+
+ContrServeur --> Serveur : « contrôle »
+ContrServeur --> TextAreaAppender : « configure »
+
+TextAreaAppender ..> LogEvent : « traite »
+
+Message ..> CryptoHandler : « peut chiffrer »
+
+ClientViewer -- ContrClient : « utilise comme contrôleur »
+ServeurViewer -- ContrServeur : « utilise comme contrôleur »
+
+@enduml
