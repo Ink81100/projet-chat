@@ -4,7 +4,7 @@ import javax.crypto.*;
 import java.security.*;
 
 /**
- * Clase permettant de gérer le cryptage/décryptage/signature de texte
+ * Classe permettant de gérer le cryptage/décryptage/signature de texte
  */
 public final class CryptoHandler {
     /**
